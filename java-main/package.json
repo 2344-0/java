@@ -1,0 +1,19 @@
+{
+  "name": "doupo-cangqiong-login",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "斗破苍穹登录页 · Vue 3 + Vite 改造版（萧炎手托莲花异火，玄重尺在侧）",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview --host"
+  },
+  "dependencies": {
+    "vue": "^3.4.21"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.0.4",
+    "vite": "^5.2.8"
+  }
+}
