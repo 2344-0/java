@@ -323,7 +323,7 @@
             <label class="chk"><input type="checkbox" id="agree" checked /><span class="tick"></span>同意《斗气大陆契约》</label>
           </div>
           <button class="submit" id="btnSms" type="button"><span class="spin"></span>验 证 登 入</button>
-          <div class="foot">新入大陆？<a class="link" id="reg">立下契约，成为斗者</a></div>
+          <div class="foot">新入大陆？<a class="link" id="reg" href="斗破苍穹注册页.html">立下契约，成为斗者</a></div>
         </div>
         <div class="pane">
           <div class="qr-wrap">
@@ -608,7 +608,7 @@
   }
   $('#qrRefresh').addEventListener('click', function(){ drawQR(); toast('二维码已刷新'); });
   $('#forgot').addEventListener('click', function(){ toast('已发送秘钥重置符文至绑定账号'); });
-  $('#reg').addEventListener('click', function(){ toast('契约入口开启中……'); });
+  // 注册入口跳转由上方 <a href> 处理
   $$('.quick button').forEach(function(b){
     b.addEventListener('click', function(){ toast(b.getAttribute('data-q') + ' 授权登录中……'); });
   });

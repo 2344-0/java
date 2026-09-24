@@ -155,14 +155,45 @@ function validate () {
   return true
 }
 
+// 后端注册接口地址（dev 环境后端端口 8081，与 application-dev.properties 保持一致）
+const API_REGISTER = 'http://localhost:8081/api/user/register'
+
 function doRegister () {
   if (!validate()) return
   loading.value = true
-  setTimeout(() => {
-    loading.value = false; done.value = true
-    toast('契约已成，异火待燃，欢迎加入斗气大陆！', '✦')
-    setTimeout(() => { done.value = false }, 2200)
-  }, 1500)
+  const payload = {
+    user: form.user.trim(),
+    pwd: form.pwd,
+    phone: form.phone.trim()
+  }
+  fetch(API_REGISTER, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  })
+    .then(r => {
+      if (!r.ok) throw new Error('HTTP ' + r.status)
+      return r.json()
+    })
+    .then(res => {
+      loading.value = false
+      if (res && res.code === 0) {
+        done.value = true
+        toast('契约已成，异火待燃，欢迎加入斗气大陆！', '✦')
+        // 立契成功后清空表单，等待 2.2s 复位
+        setTimeout(() => {
+          done.value = false
+          form.user = ''; form.pwd = ''; form.confirm = ''; form.phone = ''; form.cap = ''
+          drawCaptcha()
+        }, 2200)
+      } else {
+        toast(res && res.msg ? res.msg : '注册失败，请稍后再试', '✕')
+      }
+    })
+    .catch(() => {
+      loading.value = false
+      toast('网络异常，斗气未能引动，请确认后端服务已启动', '✕')
+    })
 }
 
 watch(theme, () => { drawCaptcha() })

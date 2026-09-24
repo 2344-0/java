@@ -308,7 +308,7 @@ body{background:var(--ink);color:var(--text);font-family:var(--sans);overflow:hi
 
       <button class="submit" id="btnReg" type="button"><span class="spin"></span>立 契 注 册</button>
 
-      <div class="switch-line">已有斗者印记？<a class="link" id="toLogin">返回登录</a></div>
+      <div class="switch-line">已有斗者印记？<a class="link" id="toLogin" href="斗破苍穹登录页.html">返回登录</a></div>
     </div>
   </section>
 </div>
@@ -485,7 +485,7 @@ body{background:var(--ink);color:var(--text);font-family:var(--sans);overflow:hi
       setTimeout(function(){ btn.classList.remove('done'); btn.innerHTML=old; },2200);
     },1500);
   });
-  $('#toLogin').addEventListener('click', function(){ toast('登录入口即将开启……'); });
+  // 登录入口跳转由上方 <a href> 处理
   window.addEventListener('resize', resize);
   readTheme(); resize(); drawCaptcha(); requestAnimationFrame(loop);
 })();
