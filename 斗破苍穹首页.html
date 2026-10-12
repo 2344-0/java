@@ -1,0 +1,536 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>斗破苍穹 · 斗气大陆 · 首页（单文件版）</title>
+<style>
+  :root{
+    --fire-1:#a97bff;
+    --fire-2:#5f2bd9;
+    --rune:#ffd98a;
+    --cyan:#4de3ff;
+    --glow:rgba(169,123,255,.55);
+    --glow-soft:rgba(169,123,255,.18);
+    --text:#efeaf6;
+    --muted:#938da6;
+    --ink:#08060f;
+    --line:rgba(255,217,138,.16);
+    --line-strong:rgba(255,217,138,.34);
+    --serif:"STKaiti","KaiTi","Kaiti SC","楷体","Songti SC","STSong",serif;
+    --sans:"PingFang SC","Microsoft YaHei","Hiragino Sans GB",-apple-system,sans-serif;
+  }
+  body[data-theme="qinglian"]{
+    --fire-1:#3ff5d6; --fire-2:#0f8bff; --rune:#9df3ff;
+    --glow:rgba(63,245,214,.5); --glow-soft:rgba(63,245,214,.16);
+    --line:rgba(157,243,255,.16); --line-strong:rgba(157,243,255,.36);
+  }
+  body[data-theme="yanyan"]{
+    --fire-1:#ff8a2b; --fire-2:#e01f00; --rune:#ffd479;
+    --glow:rgba(255,122,26,.55); --glow-soft:rgba(255,122,26,.18);
+    --line:rgba(255,212,121,.16); --line-strong:rgba(255,212,121,.34);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;}
+  body{background:var(--ink);color:var(--text);font-family:var(--sans);-webkit-font-smoothing:antialiased;min-height:100%;}
+  .bg{position:fixed;inset:0;z-index:0;overflow:hidden;pointer-events:none;}
+  .bg::before{
+    content:"";position:absolute;inset:0;
+    background:
+      radial-gradient(110% 80% at 20% 20%, rgba(64,34,120,.4) 0%, transparent 55%),
+      radial-gradient(90% 70% at 85% 80%, rgba(24,16,60,.55) 0%, transparent 60%),
+      linear-gradient(180deg,#0b0916 0%, #07050e 55%, #050409 100%);
+  }
+  .stars{
+    position:absolute;inset:0;opacity:.5;
+    background-image:
+      radial-gradient(1.4px 1.4px at 12% 22%, #fff8e6 50%, transparent 51%),
+      radial-gradient(1.2px 1.2px at 32% 12%, #fff 50%, transparent 51%),
+      radial-gradient(1.6px 1.6px at 58% 28%, #ffe9c4 50%, transparent 51%),
+      radial-gradient(1.1px 1.1px at 74% 9%, #fff 50%, transparent 51%),
+      radial-gradient(1.5px 1.5px at 88% 34%, #fff8e6 50%, transparent 51%),
+      radial-gradient(1.2px 1.2px at 44% 42%, #fff 50%, transparent 51%),
+      radial-gradient(1.1px 1.1px at 5% 52%, #ffe9c4 50%, transparent 51%),
+      radial-gradient(1.3px 1.3px at 66% 58%, #fff 50%, transparent 51%);
+    animation:twinkle 6s ease-in-out infinite;
+  }
+  @keyframes twinkle{0%,100%{opacity:.28}50%{opacity:.6}}
+  #particles{position:absolute;inset:0;width:100%;height:100%;}
+  .vignette{position:absolute;inset:0;pointer-events:none;background:radial-gradient(115% 90% at 50% 30%, transparent 42%, rgba(0,0,0,.74) 100%);}
+  .wrap{position:relative;z-index:2;max-width:1280px;margin:0 auto;padding:0 26px 60px;}
+
+  /* ===== 导航栏 ===== */
+  .nav{position:sticky;top:0;z-index:9;backdrop-filter:blur(14px);background:linear-gradient(180deg, rgba(8,6,15,.9), rgba(8,6,15,.52));border-bottom:1px solid var(--line);}
+  .nav-inner{max-width:1280px;margin:0 auto;height:66px;display:flex;align-items:center;gap:24px;padding:0 26px;}
+  .brand{display:flex;align-items:center;gap:12px;text-decoration:none;flex:none;}
+  .seal{
+    width:42px;height:42px;border-radius:10px;display:grid;place-items:center;flex:none;
+    font-family:var(--serif);font-size:23px;font-weight:700;color:#140a22;
+    background:linear-gradient(140deg,var(--rune),var(--fire-1));
+    box-shadow:0 0 22px var(--glow), inset 0 0 10px rgba(255,245,220,.55);
+    animation:float 6s ease-in-out infinite;
+  }
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+  .brand-text{display:flex;flex-direction:column;line-height:1.08;}
+  .brand-text b{font-family:var(--serif);font-size:18px;letter-spacing:.16em;color:var(--text);}
+  .brand-text i{font-style:normal;font-size:10.5px;letter-spacing:.32em;color:var(--muted);}
+  .nav-links{display:flex;gap:4px;flex:1;}
+  .nav-links a{
+    position:relative;text-decoration:none;color:var(--muted);font-family:var(--serif);
+    font-size:15px;letter-spacing:.12em;padding:8px 14px;border-radius:10px;cursor:pointer;transition:color .25s, background .25s;
+  }
+  .nav-links a:hover{color:#d3cbdf;background:rgba(255,255,255,.04);}
+  .nav-links a.on{color:var(--rune);text-shadow:0 0 14px var(--glow);}
+  .nav-links a.on::after{content:"";position:absolute;left:14px;right:14px;bottom:2px;height:2px;border-radius:2px;background:linear-gradient(90deg,var(--fire-1),var(--rune));box-shadow:0 0 10px var(--glow);}
+  .nav-right{display:flex;align-items:center;gap:14px;flex:none;}
+  .nav-user{display:flex;align-items:center;gap:9px;padding:6px 12px 6px 6px;border-radius:99px;border:1px solid var(--line);background:rgba(255,255,255,.03);cursor:pointer;color:var(--text);font-size:13px;letter-spacing:.06em;transition:.25s;}
+  .nav-user:hover{border-color:var(--line-strong);box-shadow:0 0 16px -4px var(--glow);}
+  .nav-user .av{width:28px;height:28px;border-radius:50%;display:grid;place-items:center;font-family:var(--serif);font-size:14px;color:#140a22;background:linear-gradient(140deg,var(--rune),var(--fire-1));}
+  .nav-user b{font-weight:400;color:var(--rune);}
+  .nav-user .lv{color:var(--muted);font-size:11px;}
+
+  /* ===== 主题切换 ===== */
+  .themes{display:flex;gap:8px;align-items:center;}
+  .themes i{width:18px;height:18px;border-radius:50%;cursor:pointer;display:block;border:1px solid rgba(255,255,255,.22);transition:.25s;}
+  .themes i:hover{transform:scale(1.16);}
+  .themes i[data-t="yanyan"]{background:linear-gradient(135deg,#ff8a2b,#e01f00);}
+  .themes i[data-t="qinglian"]{background:linear-gradient(135deg,#3ff5d6,#0f8bff);}
+  .themes i[data-t="yaohuo"]{background:linear-gradient(135deg,#a97bff,#5f2bd9);}
+  .themes i.on{box-shadow:0 0 0 2px var(--ink),0 0 0 3.5px var(--rune),0 0 16px var(--glow);}
+
+  /* ===== 英雄区 / 搜索栏 ===== */
+  .hero{position:relative;text-align:center;padding:78px 0 40px;}
+  .hero-rings{position:absolute;left:50%;top:54px;width:360px;height:360px;transform:translateX(-50%);pointer-events:none;}
+  .hero-rings::before,.hero-rings::after{content:"";position:absolute;inset:0;border-radius:50%;border:1px solid var(--line);}
+  .hero-rings::after{inset:46px;border-color:var(--line-strong);animation:spin 26s linear infinite;}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .hero h1{
+    position:relative;font-family:var(--serif);font-size:clamp(40px,6vw,76px);font-weight:700;letter-spacing:.2em;
+    background:linear-gradient(178deg,#fff8e8 8%,var(--rune) 42%,var(--fire-1) 88%);
+    -webkit-background-clip:text;background-clip:text;color:transparent;
+    filter:drop-shadow(0 0 26px var(--glow-soft));
+  }
+  .hero .sub{position:relative;font-family:var(--serif);font-size:15px;letter-spacing:.22em;color:#b9b0cc;margin-top:14px;text-shadow:0 2px 14px rgba(0,0,0,.7);}
+  .hero .sub b{color:var(--rune);font-weight:400;}
+  .search{position:relative;max-width:680px;margin:36px auto 0;display:flex;align-items:center;gap:10px;padding:9px 9px 9px 20px;border-radius:99px;background:linear-gradient(165deg, rgba(24,19,38,.9), rgba(10,8,18,.94));border:1px solid var(--line);box-shadow:0 30px 70px -34px var(--glow), 0 0 60px -30px var(--glow);backdrop-filter:blur(14px) saturate(130%);transition:border-color .25s, box-shadow .3s;}
+  .search:focus-within{border-color:var(--fire-1);box-shadow:0 0 0 3px var(--glow-soft), 0 30px 70px -34px var(--glow);}
+  .search svg{width:20px;height:20px;flex:none;stroke:var(--muted);fill:none;stroke-width:1.7;transition:stroke .25s;}
+  .search:focus-within svg{stroke:var(--fire-1);}
+  .search input{flex:1;min-width:0;background:none;border:0;outline:none;color:var(--text);font-size:15.5px;font-family:var(--sans);letter-spacing:.04em;}
+  .search input::placeholder{color:#615b74;}
+  .search button{height:46px;padding:0 28px;border:0;border-radius:99px;cursor:pointer;font-family:var(--serif);font-size:15px;letter-spacing:.28em;text-indent:.28em;color:#fff;background:linear-gradient(135deg,var(--fire-1),var(--fire-2));box-shadow:0 12px 28px -12px var(--glow), inset 0 1px 0 rgba(255,255,255,.3);transition:transform .18s, box-shadow .3s, filter .3s;white-space:nowrap;}
+  .search button:hover{transform:translateY(-1px);box-shadow:0 18px 38px -12px var(--glow), inset 0 1px 0 rgba(255,255,255,.4);}
+  .search button:active{transform:translateY(0) scale(.98);}
+  .hot{margin-top:18px;font-size:12.5px;color:var(--muted);letter-spacing:.08em;}
+  .hot a{color:#b9b0cc;text-decoration:none;margin:0 6px;cursor:pointer;transition:.22s;}
+  .hot a:hover{color:var(--rune);text-shadow:0 0 12px var(--glow);}
+  .hot a::before{content:"#";opacity:.5;margin-right:2px;}
+
+  /* ===== 通用区块 ===== */
+  .section{margin-top:54px;}
+  .section-head{display:flex;align-items:flex-end;justify-content:space-between;margin-bottom:20px;}
+  .section-head h2{font-family:var(--serif);font-size:25px;font-weight:700;letter-spacing:.14em;display:flex;align-items:center;gap:10px;}
+  .section-head h2 .spark{width:9px;height:9px;transform:rotate(45deg);background:linear-gradient(135deg,var(--fire-1),var(--rune));box-shadow:0 0 12px var(--glow);}
+  .section-head .more{font-size:12.5px;color:var(--muted);letter-spacing:.08em;text-decoration:none;cursor:pointer;transition:.22s;}
+  .section-head .more:hover{color:var(--rune);text-shadow:0 0 12px var(--glow);}
+
+  /* ===== 快捷分类卡 ===== */
+  .cats{display:grid;grid-template-columns:repeat(6,1fr);gap:14px;}
+  .cat{position:relative;border-radius:16px;padding:20px 16px;text-align:center;cursor:pointer;color:var(--text);text-decoration:none;background:linear-gradient(165deg, rgba(24,19,38,.78), rgba(10,8,18,.9));border:1px solid var(--line);transition:transform .25s, box-shadow .3s, border-color .3s;}
+  .cat:hover{transform:translateY(-6px);border-color:var(--line-strong);box-shadow:0 30px 60px -30px var(--glow);}
+  .cat .ic{width:46px;height:46px;margin:0 auto 12px;border-radius:13px;display:grid;place-items:center;background:rgba(255,255,255,.04);border:1px solid var(--line);}
+  .cat .ic svg{width:24px;height:24px;stroke:var(--fire-1);fill:none;stroke-width:1.6;}
+  .cat b{display:block;font-family:var(--serif);font-size:16px;letter-spacing:.1em;font-weight:400;}
+  .cat span{display:block;font-size:11px;color:var(--muted);margin-top:4px;letter-spacing:.1em;}
+
+  /* ===== 异火图鉴 ===== */
+  .fire-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;}
+  .card{position:relative;border-radius:18px;padding:22px 22px 20px;background:linear-gradient(165deg, rgba(24,19,38,.82), rgba(10,8,18,.9));border:1px solid var(--line);box-shadow:0 24px 60px -30px rgba(0,0,0,.9);backdrop-filter:blur(14px) saturate(130%);transition:transform .25s, box-shadow .3s, border-color .3s;overflow:hidden;}
+  .card:hover{transform:translateY(-6px);border-color:var(--line-strong);box-shadow:0 34px 70px -28px var(--glow);}
+  .card::before,.card::after{content:"";position:absolute;width:22px;height:22px;pointer-events:none;border:1.5px solid var(--rune);opacity:.5;}
+  .card::before{top:-1px;left:-1px;border-right:0;border-bottom:0;border-radius:18px 0 0 0;}
+  .card::after{bottom:-1px;right:-1px;border-left:0;border-top:0;border-radius:0 0 18px 0;}
+  .fire-card .flame{width:54px;height:54px;margin-bottom:14px;filter:drop-shadow(0 0 16px var(--glow));}
+  .fire-card .rank{position:absolute;top:18px;right:18px;font-family:var(--serif);font-size:13px;color:var(--rune);letter-spacing:.1em;}
+  .fire-card h3{font-family:var(--serif);font-size:20px;font-weight:700;letter-spacing:.1em;}
+  .fire-card .lv{display:inline-block;margin:9px 0 10px;font-size:11px;letter-spacing:.12em;color:#cfc6e2;padding:4px 11px;border-radius:99px;border:1px solid rgba(255,255,255,.1);background:rgba(14,10,24,.55);}
+  .fire-card p{font-size:12.5px;line-height:1.9;color:#a59dc0;}
+
+  /* ===== 双栏：功法 + 动态 ===== */
+  .cols{display:grid;grid-template-columns:1.1fr .9fr;gap:16px;}
+  .list .item{display:flex;align-items:center;gap:14px;padding:14px 4px;border-bottom:1px solid rgba(255,255,255,.06);transition:background .2s;cursor:pointer;border-radius:8px;}
+  .list .item:last-child{border-bottom:0;}
+  .list .item:hover{background:rgba(255,255,255,.03);}
+  .list .no{width:30px;height:30px;flex:none;border-radius:9px;display:grid;place-items:center;font-family:var(--serif);font-size:14px;color:var(--rune);background:rgba(255,217,138,.07);border:1px solid var(--line);}
+  .list .item b{font-family:var(--serif);font-weight:400;font-size:15px;letter-spacing:.06em;}
+  .list .item span{display:block;font-size:11.5px;color:var(--muted);margin-top:2px;}
+  .list .item .hotv{margin-left:auto;font-size:12px;color:var(--muted);letter-spacing:.06em;}
+  .feed .item{display:flex;gap:12px;padding:13px 4px;border-bottom:1px dashed rgba(255,255,255,.07);}
+  .feed .item:last-child{border-bottom:0;}
+  .feed .av{width:34px;height:34px;flex:none;border-radius:50%;display:grid;place-items:center;font-family:var(--serif);font-size:14px;color:#140a22;background:linear-gradient(140deg,var(--rune),var(--fire-1));}
+  .feed .item .txt b{font-weight:400;color:var(--text);font-size:13.5px;}
+  .feed .item .txt p{font-size:12px;color:var(--muted);line-height:1.7;margin-top:3px;}
+  .feed .item .txt time{font-size:10.5px;color:#5f5a70;letter-spacing:.08em;}
+
+  .empty{grid-column:1/-1;text-align:center;color:var(--muted);font-family:var(--serif);letter-spacing:.2em;padding:30px 0;display:none;}
+
+  .foot{margin-top:64px;text-align:center;font-size:12px;color:#6b6579;letter-spacing:.08em;line-height:2;}
+  .foot .link{color:var(--rune);opacity:.85;text-decoration:none;}
+
+  #toast{position:fixed;left:50%;bottom:52px;transform:translate(-50%,26px);z-index:20;opacity:0;pointer-events:none;transition:.4s cubic-bezier(.2,.8,.25,1);padding:13px 26px;border-radius:12px;font-size:13.5px;letter-spacing:.06em;color:var(--text);background:rgba(16,13,26,.94);border:1px solid var(--line-strong);box-shadow:0 20px 50px -20px #000, 0 0 24px -8px var(--glow);backdrop-filter:blur(12px);}
+  #toast.show{opacity:1;transform:translate(-50%,0);}
+  #toast .ic{color:var(--rune);margin-right:9px;}
+
+  @media (max-width:1024px){
+    .cats{grid-template-columns:repeat(3,1fr);}
+    .fire-grid{grid-template-columns:repeat(2,1fr);}
+    .cols{grid-template-columns:1fr;}
+  }
+  @media (max-width:640px){
+    .nav-links{display:none;}
+    .cats{grid-template-columns:repeat(2,1fr);}
+    .fire-grid{grid-template-columns:1fr;}
+    .hero{padding:54px 0 30px;}
+    .search{flex-wrap:wrap;border-radius:22px;padding:12px;}
+    .search input{width:100%;}
+    .search button{width:100%;}
+  }
+  @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;}}
+</style>
+</head>
+<body data-theme="yaohuo">
+<div class="bg">
+  <div class="stars"></div>
+  <canvas id="particles"></canvas>
+  <div class="vignette"></div>
+</div>
+
+<!-- ===== 导航栏 ===== -->
+<header class="nav">
+  <div class="nav-inner">
+    <a class="brand" href="斗破苍穹首页.html">
+      <span class="seal">斗</span>
+      <span class="brand-text"><b>斗破苍穹</b><i>斗气大陆</i></span>
+    </a>
+    <nav class="nav-links">
+      <a class="on">首页</a>
+      <a data-cat="异火">异火榜</a>
+      <a data-cat="功法">功法阁</a>
+      <a data-cat="丹药">丹药坊</a>
+      <a data-cat="斗气">斗气榜</a>
+      <a data-cat="宗门">宗门</a>
+    </nav>
+    <div class="nav-right">
+      <div class="nav-user" id="navUser" title="斗者信息">
+        <span class="av" id="navAv">萧</span>
+        <span><b id="navName">萧炎</b> <span class="lv" id="navLv">斗之气三段</span></span>
+      </div>
+      <div class="themes" id="themes">
+        <i data-t="yaohuo" class="on" title="净莲妖火"></i>
+        <i data-t="qinglian" title="青莲地心火"></i>
+        <i data-t="yanyan" title="陨落心炎"></i>
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="wrap">
+  <!-- ===== 英雄区 + 搜索栏 ===== -->
+  <section class="hero">
+    <div class="hero-rings"></div>
+    <h1>斗 气 大 陆</h1>
+    <p class="sub">手托莲台焚万法 · 尺镇八荒入长河　<b>莫欺少年穷</b></p>
+    <form class="search" id="searchForm" autocomplete="off">
+      <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.2-3.2"/></svg>
+      <input id="searchInput" type="text" placeholder="搜寻 异火 · 功法 · 斗者 · 宗门……" />
+      <button type="submit">搜 寻</button>
+    </form>
+    <div class="hot">
+      热门：
+      <a data-q="净莲妖火">净莲妖火</a>
+      <a data-q="焚决">焚决</a>
+      <a data-q="玄重尺">玄重尺</a>
+      <a data-q="药老">药老</a>
+      <a data-q="萧炎">萧炎</a>
+    </div>
+  </section>
+
+  <!-- ===== 快捷分类 ===== -->
+  <section class="section">
+    <div class="section-head"><h2><span class="spark"></span>修行之所</h2></div>
+    <div class="cats">
+      <a class="cat" data-cat="异火"><span class="ic"><svg viewBox="0 0 24 24"><path d="M12 3c1 3-2 4-2 7a3 3 0 0 0 6 0c0-1-.5-2-1-2.5C16 9 18 12 18 15a6 6 0 1 1-12 0c0-4 3-6 4-8 .6-1 1.4-2.2 2-4Z"/></svg></span><b>异火榜</b><span>天地奇火</span></a>
+      <a class="cat" data-cat="功法"><span class="ic"><svg viewBox="0 0 24 24"><path d="M12 3v18M5 8l7-5 7 5M5 8v8l7 5 7-5V8"/></svg></span><b>功法阁</b><span>焚决斗技</span></a>
+      <a class="cat" data-cat="丹药"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4.5 12a7.5 7.5 0 0 1 15 0c0 2-1 3-1 5a5 5 0 0 1-6 5 5 5 0 0 1-6-5c0-2-1-3-1-5Z"/><path d="M9 12h6"/></svg></span><b>丹药坊</b><span>凝丹炼药</span></a>
+      <a class="cat" data-cat="斗气"><span class="ic"><svg viewBox="0 0 24 24"><path d="M12 2 4 6v6c0 5 3.5 8 8 10 4.5-2 8-5 8-10V6Z"/><path d="m9 12 2 2 4-4"/></svg></span><b>斗气榜</b><span>段位晋升</span></a>
+      <a class="cat" data-cat="宗门"><span class="ic"><svg viewBox="0 0 24 24"><path d="M4 21V9l8-5 8 5v12M9 21v-6h6v6"/></svg></span><b>宗门</b><span>迦南星陨</span></a>
+      <a class="cat" data-cat="拍卖"><span class="ic"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="8"/><path d="M12 8v8M9 10h6M9 14h6"/></svg></span><b>拍卖行</b><span>天材地宝</span></a>
+    </div>
+  </section>
+
+  <!-- ===== 异火图鉴 ===== -->
+  <section class="section">
+    <div class="section-head">
+      <h2><span class="spark"></span>异火图鉴</h2>
+      <a class="more" id="resetFire">显示全部异火</a>
+    </div>
+    <div class="fire-grid" id="fireGrid">
+      <article class="card fire-card" data-name="净莲妖火 妖火 莲台">
+        <span class="rank">异火榜 · 第三</span>
+        <svg class="flame" viewBox="0 0 24 24" fill="none" stroke="var(--fire-1)" stroke-width="1.4"><path d="M12 3c1 3-2 4-2 7a3 3 0 0 0 6 0c0-1-.5-2-1-2.5C16 9 18 12 18 15a6 6 0 1 1-12 0c0-4 3-6 4-8 .6-1 1.4-2.2 2-4Z"/></svg>
+        <h3>净莲妖火</h3><span class="lv">榜三 · 灵智化生</span>
+        <p>呈莲花之形，可化人形，焚尽万物而灵智自生，乃异火中罕见具魂者。</p>
+      </article>
+      <article class="card fire-card" data-name="青莲地心火 青莲 地心">
+        <span class="rank">异火榜 · 第十九</span>
+        <svg class="flame" viewBox="0 0 24 24" fill="none" stroke="var(--fire-1)" stroke-width="1.4"><path d="M12 3c1 3-2 4-2 7a3 3 0 0 0 6 0c0-1-.5-2-1-2.5C16 9 18 12 18 15a6 6 0 1 1-12 0c0-4 3-6 4-8 .6-1 1.4-2.2 2-4Z"/></svg>
+        <h3>青莲地心火</h3><span class="lv">榜十九 · 地心所孕</span>
+        <p>生于地心熔岩，莲台模样，可炼体亦可炼丹，温润而炽烈。</p>
+      </article>
+      <article class="card fire-card" data-name="陨落心炎 心炎 修炼">
+        <span class="rank">异火榜 · 第十四</span>
+        <svg class="flame" viewBox="0 0 24 24" fill="none" stroke="var(--fire-1)" stroke-width="1.4"><path d="M12 3c1 3-2 4-2 7a3 3 0 0 0 6 0c0-1-.5-2-1-2.5C16 9 18 12 18 15a6 6 0 1 1-12 0c0-4 3-6 4-8 .6-1 1.4-2.2 2-4Z"/></svg>
+        <h3>陨落心炎</h3><span class="lv">榜十四 · 助修炼</span>
+        <p>潜伏体内助长斗气，修炼事半功倍，然反噬亦烈，需以心智制之。</p>
+      </article>
+      <article class="card fire-card" data-name="骨灵冷火 骨灵 冷火">
+        <span class="rank">异火榜 · 第十一</span>
+        <svg class="flame" viewBox="0 0 24 24" fill="none" stroke="var(--fire-1)" stroke-width="1.4"><path d="M12 3c1 3-2 4-2 7a3 3 0 0 0 6 0c0-1-.5-2-1-2.5C16 9 18 12 18 15a6 6 0 1 1-12 0c0-4 3-6 4-8 .6-1 1.4-2.2 2-4Z"/></svg>
+        <h3>骨灵冷火</h3><span class="lv">榜十一 · 冰火相济</span>
+        <p>韩枫师徒所掌之异火，与焚决相融可成冰火双重，诡谲非常。</p>
+      </article>
+      <article class="card fire-card" data-name="海心焰 海心 海洋">
+        <span class="rank">异火榜 · 第十五</span>
+        <svg class="flame" viewBox="0 0 24 24" fill="none" stroke="var(--fire-1)" stroke-width="1.4"><path d="M12 3c1 3-2 4-2 7a3 3 0 0 0 6 0c0-1-.5-2-1-2.5C16 9 18 12 18 15a6 6 0 1 1-12 0c0-4 3-6 4-8 .6-1 1.4-2.2 2-4Z"/></svg>
+        <h3>海心焰</h3><span class="lv">榜十五 · 深海洋流</span>
+        <p>生于万丈深海之底，呈幽蓝之色，炽热中藏冰凉，炼药之上品。</p>
+      </article>
+      <article class="card fire-card" data-name="三千焱炎火 三千 星空">
+        <span class="rank">异火榜 · 第九</span>
+        <svg class="flame" viewBox="0 0 24 24" fill="none" stroke="var(--fire-1)" stroke-width="1.4"><path d="M12 3c1 3-2 4-2 7a3 3 0 0 0 6 0c0-1-.5-2-1-2.5C16 9 18 12 18 15a6 6 0 1 1-12 0c0-4 3-6 4-8 .6-1 1.4-2.2 2-4Z"/></svg>
+        <h3>三千焱炎火</h3><span class="lv">榜九 · 星辰不灭</span>
+        <p>又称三千星空焱炎，具不灭之体，受创可自星空重生，威能滔天。</p>
+      </article>
+      <article class="card fire-card" data-name="九幽金祖火 九幽 金祖">
+        <span class="rank">异火榜 · 第六</span>
+        <svg class="flame" viewBox="0 0 24 24" fill="none" stroke="var(--fire-1)" stroke-width="1.4"><path d="M12 3c1 3-2 4-2 7a3 3 0 0 0 6 0c0-1-.5-2-1-2.5C16 9 18 12 18 15a6 6 0 1 1-12 0c0-4 3-6 4-8 .6-1 1.4-2.2 2-4Z"/></svg>
+        <h3>九幽金祖火</h3><span class="lv">榜六 · 金芒镇幽</span>
+        <p>幽冥之中生出金芒，可焚魂炼魄，与火山石焰融合可衍新生异火。</p>
+      </article>
+      <article class="card fire-card" data-name="陀舍古帝烛火 陀舍 古帝 帝火">
+        <span class="rank">异火榜 · 第一</span>
+        <svg class="flame" viewBox="0 0 24 24" fill="none" stroke="var(--fire-1)" stroke-width="1.4"><path d="M12 3c1 3-2 4-2 7a3 3 0 0 0 6 0c0-1-.5-2-1-2.5C16 9 18 12 18 15a6 6 0 1 1-12 0c0-4 3-6 4-8 .6-1 1.4-2.2 2-4Z"/></svg>
+        <h3>陀舍古帝烛火</h3><span class="lv">榜一 · 万火之祖</span>
+        <p>异火榜魁首，相传为万火之始，集千家异火于一身，可焚天煮海。</p>
+      </article>
+      <div class="empty" id="fireEmpty">未寻得此异火，换个咒印再试 ——</div>
+    </div>
+  </section>
+
+  <!-- ===== 双栏：功法榜 + 斗者动态 ===== -->
+  <section class="section">
+    <div class="section-head"><h2><span class="spark"></span>斗气风云</h2></div>
+    <div class="cols">
+      <div class="card">
+        <div class="section-head" style="margin-bottom:8px;"><h2 style="font-size:18px;">热门功法</h2><a class="more">查看全部</a></div>
+        <div class="list">
+          <div class="item"><span class="no">壹</span><div><b>焚决</b><span>可吞噬异火进阶的至强功法</span></div><span class="hotv">🔥 9.8w</span></div>
+          <div class="item"><span class="no">贰</span><div><b>九转斗者决</b><span>稳固根基，斗气绵长不绝</span></div><span class="hotv">🔥 6.2w</span></div>
+          <div class="item"><span class="no">叁</span><div><b>八极崩</b><span>近身斗技，一击叠浪八重</span></div><span class="hotv">🔥 5.5w</span></div>
+          <div class="item"><span class="no">肆</span><div><b>焰分噬浪尺</b><span>玄重尺所施，尺出焰浪滔天</span></div><span class="hotv">🔥 4.9w</span></div>
+          <div class="item"><span class="no">伍</span><div><b>三千雷动</b><span>身法斗技，雷影瞬息千里</span></div><span class="hotv">🔥 4.1w</span></div>
+        </div>
+      </div>
+      <div class="card">
+        <div class="section-head" style="margin-bottom:8px;"><h2 style="font-size:18px;">斗者动态</h2><a class="more">进入宗门</a></div>
+        <div class="feed">
+          <div class="item"><span class="av">药</span><div class="txt"><b>药老</b> <time>片刻前</time><p>新得一味「龙血芝」，可助斗王突破瓶颈，欲求者速来丹药坊。</p></div></div>
+          <div class="item"><span class="av">萧</span><div class="txt"><b>萧炎</b> <time>半个时辰前</time><p>于迦南学院秘境收服青莲地心火，斗气大涨，叩谢诸位相助。</p></div></div>
+          <div class="item"><span class="av">美</span><div class="txt"><b>美杜莎</b> <time>今晨</time><p>蛇人族与迦南结盟，异火共享事宜已在宗门议定。</p></div></div>
+          <div class="item"><span class="av">薰</span><div class="txt"><b>薰儿</b> <time>昨日</time><p>古族藏书阁新添《异火通鉴》，已向诸位斗者开放查阅。</p></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <div class="foot">
+    斗破苍穹 · 斗气大陆门户　|　手托莲台焚万法，尺倚身旁镇八荒<br />
+    <a class="link" href="斗破苍穹登录页.html">返回登录</a> · <a class="link" id="logout">退出斗气</a>
+  </div>
+</div>
+
+<div id="toast"><span class="ic">✦</span><span id="toastText"></span></div>
+
+<script>
+(function(){
+  "use strict";
+  var $  = function(s,r){ return (r||document).querySelector(s); };
+  var $$ = function(s,r){ return Array.prototype.slice.call((r||document).querySelectorAll(s)); };
+  var toastEl = $('#toast'), toastText = $('#toastText'), toastTimer = null;
+  function toast(msg, ic){
+    toastText.textContent = msg;
+    $('.ic', toastEl).textContent = ic || '✦';
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ toastEl.classList.remove('show'); }, 2600);
+  }
+
+  /* ===== 主题切换（与登录页一致） ===== */
+  var themeNames = { yaohuo:'净莲妖火', qinglian:'青莲地心火', yanyan:'陨落心炎' };
+  $$('#themes i').forEach(function(el){
+    el.addEventListener('click', function(){
+      $$('#themes i').forEach(function(x){ x.classList.remove('on'); });
+      el.classList.add('on');
+      var t = el.getAttribute('data-t');
+      document.body.setAttribute('data-theme', t);
+      readTheme();
+      try{ localStorage.setItem('dp_theme', t); }catch(e){}
+      toast('异火已换 · ' + themeNames[t]);
+    });
+  });
+  try{
+    var saved = localStorage.getItem('dp_theme');
+    if(saved){
+      document.body.setAttribute('data-theme', saved);
+      $$('#themes i').forEach(function(x){ x.classList.toggle('on', x.getAttribute('data-t')===saved); });
+    }
+  }catch(e){}
+
+  /* ===== 粒子背景（与登录页一致） ===== */
+  var cv = $('#particles'), ctx = cv.getContext('2d');
+  var W = 0, H = 0, DPR = Math.min(window.devicePixelRatio || 1, 2);
+  var embers = [], petals = [], fireRGB = [169,123,255];
+  function hexToRGB(str, d){
+    var hex = String(str || '').trim().replace('#','');
+    if(hex.length === 3) hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
+    if(hex.length < 6) return d;
+    var c = [parseInt(hex.substr(0,2),16), parseInt(hex.substr(2,2),16), parseInt(hex.substr(4,2),16)];
+    return c.some(isNaN) ? d : c;
+  }
+  function readTheme(){
+    fireRGB = hexToRGB(getComputedStyle(document.body).getPropertyValue('--fire-1'), [169,123,255]);
+  }
+  function resize(){
+    W = window.innerWidth; H = window.innerHeight;
+    cv.width = W * DPR; cv.height = H * DPR;
+    cv.style.width = W + 'px'; cv.style.height = H + 'px';
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+    var nE = Math.round(Math.min(90, Math.max(36, W / 16)));
+    var nP = Math.round(Math.min(22, Math.max(8, W / 70)));
+    embers = []; petals = [];
+    for(var i=0;i<nE;i++) embers.push(newEmber(true));
+    for(var j=0;j<nP;j++) petals.push(newPetal(true));
+  }
+  function newEmber(init){
+    return { x:Math.random()*W, y:init?Math.random()*H:H+Math.random()*60, r:0.7+Math.random()*2,
+      vy:0.16+Math.random()*0.5, ph:Math.random()*Math.PI*2, amp:0.25+Math.random()*0.8,
+      life:0, max:320+Math.random()*380, a:0.22+Math.random()*0.55 };
+  }
+  function newPetal(init){
+    return { x:Math.random()*W, y:init?Math.random()*H:-40-Math.random()*80, s:5+Math.random()*8,
+      vy:0.35+Math.random()*0.6, ph:Math.random()*Math.PI*2, rot:Math.random()*Math.PI*2,
+      vr:(Math.random()-0.5)*0.02, amp:0.5+Math.random()*1.1, a:0.16+Math.random()*0.3 };
+  }
+  var t = 0;
+  function loop(){
+    t += 0.016;
+    ctx.clearRect(0,0,W,H);
+    ctx.globalCompositeOperation = 'lighter';
+    for(var i=0;i<embers.length;i++){
+      var p = embers[i];
+      p.life++; p.y -= p.vy; p.ph += 0.012; p.x += Math.sin(p.ph) * p.amp * 0.5;
+      var fade = 1 - Math.abs(p.life / p.max - 0.5) * 2;
+      var alpha = Math.max(0, p.a * fade);
+      var g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r*4);
+      g.addColorStop(0, 'rgba('+Math.min(255,fireRGB[0]+60)+','+Math.min(255,fireRGB[1]+40)+','+fireRGB[2]+','+alpha+')');
+      g.addColorStop(0.45,'rgba('+fireRGB[0]+','+fireRGB[1]+','+fireRGB[2]+','+(alpha*0.32)+')');
+      g.addColorStop(1,'rgba('+fireRGB[0]+','+fireRGB[1]+','+fireRGB[2]+',0)');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p.x, p.y, p.r*4, 0, Math.PI*2); ctx.fill();
+      if(p.y < -50 || p.life > p.max) embers[i] = newEmber(false);
+    }
+    ctx.globalCompositeOperation = 'source-over';
+    for(var k=0;k<petals.length;k++){
+      var q = petals[k];
+      q.ph += 0.01; q.y += q.vy; q.x += Math.sin(q.ph) * q.amp; q.rot += q.vr;
+      var edge = Math.min(q.y/(H*0.25), 1, (H-q.y)/(H*0.25), 1);
+      var pa = Math.max(0, q.a * Math.max(0, edge));
+      ctx.save(); ctx.translate(q.x, q.y); ctx.rotate(q.rot); ctx.scale(1, 0.62);
+      var pg = ctx.createLinearGradient(-q.s, -q.s, q.s, q.s);
+      pg.addColorStop(0, 'rgba('+fireRGB[0]+','+fireRGB[1]+','+fireRGB[2]+','+pa+')');
+      pg.addColorStop(1, 'rgba(255,217,138,'+(pa*0.75)+')');
+      ctx.fillStyle = pg; ctx.beginPath();
+      ctx.moveTo(0,-q.s);
+      ctx.bezierCurveTo(q.s*0.9,-q.s*0.5, q.s*0.7,q.s*0.6, 0,q.s);
+      ctx.bezierCurveTo(-q.s*0.7,q.s*0.6, -q.s*0.9,-q.s*0.5, 0,-q.s);
+      ctx.fill(); ctx.restore();
+      if(q.y > H + 60) petals[k] = newPetal(false);
+    }
+    requestAnimationFrame(loop);
+  }
+
+  /* ===== 登录用户信息（登录页写入 dp_user） ===== */
+  function getParam(n){ var m = new RegExp('[?&]'+n+'=([^&]*)').exec(location.search); return m ? decodeURIComponent(m[1]) : ''; }
+  var uname = getParam('user') || '';
+  try{ uname = uname || localStorage.getItem('dp_user') || ''; }catch(e){}
+  if(uname){
+    var first = uname.charAt(0);
+    $('#navName').textContent = uname;
+    $('#navAv').textContent = first || '斗';
+    $('#navLv').textContent = '斗之气三段';
+  }
+  $('#navUser').addEventListener('click', function(){ toast('斗者 · ' + $('#navName').textContent + '　|　斗之气三段'); });
+  $('#logout').addEventListener('click', function(){
+    try{ localStorage.removeItem('dp_user'); }catch(e){}
+    toast('已退出斗气，异火归寂……');
+    setTimeout(function(){ location.href = '斗破苍穹登录页.html'; }, 900);
+  });
+
+  /* ===== 搜索栏：过滤异火图鉴 ===== */
+  var fireCards = $$('.fire-card'), fireEmpty = $('#fireEmpty');
+  function doSearch(kw){
+    kw = (kw||'').trim();
+    if(!kw){ fireCards.forEach(function(c){ c.style.display=''; }); fireEmpty.style.display='none'; toast('已显示全部异火'); return; }
+    var hit = 0;
+    fireCards.forEach(function(c){
+      var hay = (c.getAttribute('data-name')||'') + ' ' + (c.querySelector('h3').textContent);
+      var ok = hay.toLowerCase().indexOf(kw.toLowerCase()) > -1;
+      c.style.display = ok ? '' : 'none';
+      if(ok) hit++;
+    });
+    fireEmpty.style.display = hit ? 'none' : 'block';
+    toast(hit ? ('寻得 '+hit+' 道异火：'+kw) : ('未寻得「'+kw+'」，换个咒印再试'));
+    document.getElementById('fireGrid').scrollIntoView({behavior:'smooth', block:'center'});
+  }
+  $('#searchForm').addEventListener('submit', function(e){
+    e.preventDefault(); doSearch($('#searchInput').value);
+  });
+  $$('.hot a').forEach(function(a){ a.addEventListener('click', function(){ $('#searchInput').value = a.getAttribute('data-q'); doSearch(a.getAttribute('data-q')); }); });
+  $('#resetFire').addEventListener('click', function(){ $('#searchInput').value=''; doSearch(''); });
+
+  /* ===== 导航 / 分类点击 ===== */
+  $$('.nav-links a').forEach(function(a){
+    a.addEventListener('click', function(){
+      $$('.nav-links a').forEach(function(x){ x.classList.remove('on'); });
+      a.classList.add('on');
+      var c = a.getAttribute('data-cat');
+      if(c){ $('#searchInput').value = c; doSearch(c); toast('前往 · '+a.textContent); }
+      else { window.scrollTo({top:0, behavior:'smooth'}); }
+    });
+  });
+  $$('.cat').forEach(function(c){
+    c.addEventListener('click', function(e){
+      e.preventDefault();
+      var cat = c.getAttribute('data-cat');
+      $('#searchInput').value = cat; doSearch(cat);
+      toast('浏览 · '+cat);
+    });
+  });
+
+  window.addEventListener('resize', resize);
+  readTheme();
+  resize();
+  loop();
+})();
+</script>
+</body>
+</html>
