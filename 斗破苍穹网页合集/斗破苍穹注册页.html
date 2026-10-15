@@ -1,0 +1,437 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>斗破苍穹 · 立下契约 · 成为斗者（单文件版）</title>
+<style>
+  :root{
+    --fire-1:#a97bff;
+    --fire-2:#5f2bd9;
+    --rune:#ffd98a;
+    --cyan:#4de3ff;
+    --glow:rgba(169,123,255,.55);
+    --glow-soft:rgba(169,123,255,.18);
+    --text:#efeaf6;
+    --muted:#938da6;
+    --ink:#08060f;
+    --line:rgba(255,217,138,.16);
+    --line-strong:rgba(255,217,138,.34);
+    --serif:"STKaiti","KaiTi","Kaiti SC","楷体","Songti SC","STSong",serif;
+    --sans:"PingFang SC","Microsoft YaHei","Hiragino Sans GB",-apple-system,sans-serif;
+  }
+  body[data-theme="qinglian"]{
+    --fire-1:#3ff5d6; --fire-2:#0f8bff; --rune:#9df3ff;
+    --glow:rgba(63,245,214,.5); --glow-soft:rgba(63,245,214,.16);
+    --line:rgba(157,243,255,.16); --line-strong:rgba(157,243,255,.36);
+  }
+  body[data-theme="yanyan"]{
+    --fire-1:#ff8a2b; --fire-2:#e01f00; --rune:#ffd479;
+    --glow:rgba(255,122,26,.55); --glow-soft:rgba(255,122,26,.18);
+    --line:rgba(255,212,121,.16); --line-strong:rgba(255,212,121,.34);
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  html,body{height:100%;}
+  body{background:var(--ink);color:var(--text);font-family:var(--sans);overflow:hidden;-webkit-font-smoothing:antialiased;min-height:100%;}
+  .bg{position:fixed;inset:0;z-index:0;overflow:hidden;}
+  .bg::before{
+    content:"";position:absolute;inset:0;
+    background:
+      radial-gradient(110% 80% at 20% 20%, rgba(64,34,120,.4) 0%, transparent 55%),
+      radial-gradient(90% 70% at 85% 80%, rgba(24,16,60,.55) 0%, transparent 60%),
+      linear-gradient(180deg,#0b0916 0%, #07050e 55%, #050409 100%);
+  }
+  .stars{
+    position:absolute;inset:0;opacity:.5;
+    background-image:
+      radial-gradient(1.4px 1.4px at 12% 22%, #fff8e6 50%, transparent 51%),
+      radial-gradient(1.2px 1.2px at 32% 12%, #fff 50%, transparent 51%),
+      radial-gradient(1.6px 1.6px at 58% 28%, #ffe9c4 50%, transparent 51%),
+      radial-gradient(1.1px 1.1px at 74% 9%, #fff 50%, transparent 51%),
+      radial-gradient(1.5px 1.5px at 88% 34%, #fff8e6 50%, transparent 51%),
+      radial-gradient(1.2px 1.2px at 44% 42%, #fff 50%, transparent 51%),
+      radial-gradient(1.1px 1.1px at 5% 52%, #ffe9c4 50%, transparent 51%),
+      radial-gradient(1.3px 1.3px at 66% 58%, #fff 50%, transparent 51%);
+    animation:twinkle 6s ease-in-out infinite;
+  }
+  @keyframes twinkle{0%,100%{opacity:.28}50%{opacity:.6}}
+  #particles{position:absolute;inset:0;width:100%;height:100%;}
+  .vignette{position:absolute;inset:0;pointer-events:none;background:radial-gradient(115% 90% at 50% 45%, transparent 42%, rgba(0,0,0,.78) 100%);}
+
+  .topbar{position:fixed;top:0;left:0;right:0;z-index:9;display:flex;align-items:center;justify-content:space-between;padding:20px 26px;}
+  .brand{display:flex;align-items:center;gap:12px;text-decoration:none;flex:none;}
+  .seal{
+    width:42px;height:42px;border-radius:10px;display:grid;place-items:center;flex:none;
+    font-family:var(--serif);font-size:22px;font-weight:700;color:#140a22;
+    background:linear-gradient(140deg,var(--rune),var(--fire-1));
+    box-shadow:0 0 22px var(--glow), inset 0 0 10px rgba(255,245,220,.55);
+    animation:float 6s ease-in-out infinite;
+  }
+  @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
+  .brand-text{display:flex;flex-direction:column;line-height:1.08;}
+  .brand-text b{font-family:var(--serif);font-size:17px;letter-spacing:.16em;color:var(--text);}
+  .brand-text i{font-style:normal;font-size:10px;letter-spacing:.32em;color:var(--muted);}
+  .back{text-decoration:none;font-family:var(--serif);font-size:14px;letter-spacing:.12em;color:var(--muted);padding:8px 14px;border-radius:10px;transition:color .25s, background .25s;}
+  .back:hover{color:#d3cbdf;background:rgba(255,255,255,.04);}
+
+  .stage{position:relative;z-index:2;height:100%;display:grid;place-items:center;padding:26px;}
+  .panel{
+    width:100%;max-width:460px;position:relative;padding:38px 36px 28px;border-radius:20px;
+    background:linear-gradient(165deg, rgba(24,19,38,.88), rgba(10,8,18,.94));
+    border:1px solid var(--line);
+    box-shadow:0 40px 90px -30px rgba(0,0,0,.95), 0 0 90px -30px var(--glow);
+    backdrop-filter:blur(18px) saturate(130%);
+    animation:rise .9s cubic-bezier(.2,.8,.25,1) both;
+  }
+  @keyframes rise{from{opacity:0;transform:translateY(26px) scale(.98)}to{opacity:1;transform:none}}
+  .panel::before,.panel::after{content:"";position:absolute;width:26px;height:26px;pointer-events:none;border:1.5px solid var(--rune);opacity:.55;}
+  .panel::before{top:-1px;left:-1px;border-right:0;border-bottom:0;border-radius:20px 0 0 0;}
+  .panel::after{bottom:-1px;right:-1px;border-left:0;border-top:0;border-radius:0 0 20px 0;}
+  .panel h2{font-family:var(--serif);font-size:27px;letter-spacing:.14em;font-weight:700;display:flex;align-items:center;gap:10px;}
+  .panel h2 .spark{width:9px;height:9px;transform:rotate(45deg);background:linear-gradient(135deg,var(--fire-1),var(--rune));box-shadow:0 0 12px var(--glow);}
+  .panel .desc{font-size:12.5px;color:var(--muted);letter-spacing:.16em;margin-top:9px;}
+
+  .field{margin-bottom:16px;position:relative;}
+  .field .box{display:flex;align-items:center;gap:11px;background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.09);border-radius:12px;padding:0 14px;height:50px;transition:border-color .25s, box-shadow .25s, background .25s;}
+  .field .box:focus-within{border-color:var(--fire-1);background:rgba(255,255,255,.05);box-shadow:0 0 0 3px var(--glow-soft), 0 0 22px -6px var(--glow);}
+  .field .box.err{border-color:#ff5163;box-shadow:0 0 0 3px rgba(255,81,99,.13);}
+  .field svg{width:17px;height:17px;flex:none;stroke:#847e96;fill:none;stroke-width:1.6;transition:stroke .25s;}
+  .field .box:focus-within svg{stroke:var(--fire-1);}
+  .field input{flex:1;min-width:0;background:none;border:0;outline:none;color:var(--text);font-size:14.5px;font-family:var(--sans);letter-spacing:.04em;}
+  .field input::placeholder{color:#615b74;}
+  .eye{background:none;border:0;cursor:pointer;padding:4px;display:grid;place-items:center;flex:none;}
+  .eye svg{stroke:#736d86;}
+  .eye:hover svg{stroke:var(--rune);}
+  .msg{font-size:11.5px;color:#ff6a78;height:14px;margin:5px 0 0 4px;letter-spacing:.04em;opacity:0;transform:translateY(-3px);transition:.22s;}
+  .msg.show{opacity:1;transform:none;}
+  .cap-row{display:flex;gap:10px;}
+  .cap-row .field{flex:1;margin-bottom:16px;}
+  #captcha{width:116px;height:50px;flex:none;border-radius:12px;cursor:pointer;border:1px solid rgba(255,255,255,.09);background:rgba(255,255,255,.03);}
+  #captcha:hover{border-color:var(--line-strong);}
+  .opts{display:flex;justify-content:space-between;align-items:center;margin:2px 0 22px;font-size:12.5px;}
+  .chk{display:flex;align-items:center;gap:8px;color:#928ca4;cursor:pointer;user-select:none;letter-spacing:.04em;}
+  .chk input{display:none;}
+  .chk .tick{width:15px;height:15px;border-radius:4px;flex:none;border:1px solid rgba(255,255,255,.2);position:relative;transition:.22s;}
+  .chk input:checked + .tick{background:linear-gradient(135deg,var(--fire-1),var(--fire-2));border-color:transparent;box-shadow:0 0 12px -1px var(--glow);}
+  .chk .tick::after{content:"";position:absolute;left:4.6px;top:1.6px;width:4px;height:8px;border-right:2px solid #12081f;border-bottom:2px solid #12081f;transform:rotate(42deg) scale(0);transition:transform .2s;}
+  .chk input:checked + .tick::after{transform:rotate(42deg) scale(1);}
+  .link{color:#928ca4;text-decoration:none;letter-spacing:.04em;transition:.22s;cursor:pointer;}
+  .link:hover{color:var(--rune);text-shadow:0 0 12px var(--glow);}
+  .submit{position:relative;width:100%;height:52px;border:0;border-radius:12px;cursor:pointer;overflow:hidden;font-family:var(--serif);font-size:17px;letter-spacing:.36em;text-indent:.36em;color:#fff;background:linear-gradient(135deg,var(--fire-1),var(--fire-2));box-shadow:0 14px 34px -12px var(--glow), inset 0 1px 0 rgba(255,255,255,.3);transition:transform .18s, box-shadow .3s, filter .3s;}
+  .submit:hover{transform:translateY(-2px);box-shadow:0 20px 44px -12px var(--glow), inset 0 1px 0 rgba(255,255,255,.4);}
+  .submit:active{transform:translateY(0) scale(.99);}
+  .submit::after{content:"";position:absolute;top:0;left:-120%;width:60%;height:100%;background:linear-gradient(100deg,transparent,rgba(255,255,255,.5),transparent);transform:skewX(-18deg);}
+  .submit:hover::after{animation:sweep .9s ease;}
+  @keyframes sweep{to{left:140%}}
+  .submit:disabled{cursor:wait;filter:grayscale(.15) brightness(.92);}
+  .submit .spin{display:none;width:17px;height:17px;border-radius:50%;vertical-align:-3px;border:2px solid rgba(255,255,255,.35);border-top-color:#fff;animation:spin .7s linear infinite;margin-right:10px;}
+  .submit.loading .spin{display:inline-block;}
+  .submit.done{background:linear-gradient(135deg,#3fbf7f,#1c8a55);box-shadow:0 14px 34px -14px rgba(63,191,127,.6);}
+  @keyframes spin{to{transform:rotate(360deg)}}
+  .foot{text-align:center;font-size:12px;color:#6b6579;margin-top:22px;letter-spacing:.05em;}
+  .foot .link{color:var(--rune);opacity:.85;}
+
+  .themes{position:fixed;top:22px;right:26px;z-index:9;display:flex;gap:9px;align-items:center;}
+  .themes i{width:19px;height:19px;border-radius:50%;cursor:pointer;display:block;border:1px solid rgba(255,255,255,.22);transition:.25s;}
+  .themes i:hover{transform:scale(1.16);}
+  .themes i[data-t="yanyan"]{background:linear-gradient(135deg,#ff8a2b,#e01f00);}
+  .themes i[data-t="qinglian"]{background:linear-gradient(135deg,#3ff5d6,#0f8bff);}
+  .themes i[data-t="yaohuo"]{background:linear-gradient(135deg,#a97bff,#5f2bd9);}
+  .themes i.on{box-shadow:0 0 0 2px var(--ink),0 0 0 3.5px var(--rune),0 0 16px var(--glow);}
+
+  #toast{position:fixed;left:50%;bottom:52px;transform:translate(-50%,26px);z-index:20;opacity:0;pointer-events:none;transition:.4s cubic-bezier(.2,.8,.25,1);padding:13px 26px;border-radius:12px;font-size:13.5px;letter-spacing:.06em;color:var(--text);background:rgba(16,13,26,.94);border:1px solid var(--line-strong);box-shadow:0 20px 50px -20px #000, 0 0 24px -8px var(--glow);backdrop-filter:blur(12px);}
+  #toast.show{opacity:1;transform:translate(-50%,0);}
+  #toast .ic{color:var(--rune);margin-right:9px;}
+
+  @media (max-width:520px){
+    .panel{padding:30px 22px 24px;border-radius:16px;}
+    .themes{top:14px;right:14px;}
+    .topbar{padding:16px;}
+  }
+  @media (prefers-reduced-motion:reduce){*{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important;}}
+</style>
+</head>
+<body data-theme="yaohuo">
+<div class="bg">
+  <div class="stars"></div>
+  <canvas id="particles"></canvas>
+  <div class="vignette"></div>
+</div>
+
+<div class="topbar">
+  <a class="brand" href="斗破苍穹首页.html">
+    <span class="seal">斗</span>
+    <span class="brand-text"><b>斗破苍穹</b><i>斗气大陆</i></span>
+  </a>
+  <a class="back" href="斗破苍穹登录页.html">返回登录 ›</a>
+</div>
+
+<main class="stage">
+  <div class="panel">
+    <h2><span class="spark"></span>立下契约 · 成为斗者</h2>
+    <p class="desc">填 写 斗 者 信 息 · 点 燃 属 于 你 的 异 火</p>
+
+    <div class="field">
+      <div class="box">
+        <svg viewBox="0 0 24 24"><circle cx="12" cy="8" r="3.6"/><path d="M4.6 20c.6-3.8 3.8-5.6 7.4-5.6S18.8 16.2 19.4 20"/></svg>
+        <input id="regUser" type="text" placeholder="斗者账号 / 手机号（至少 3 位）" autocomplete="username" />
+      </div>
+      <div class="msg" data-for="regUser">账号至少 3 个字符</div>
+    </div>
+
+    <div class="field">
+      <div class="box">
+        <svg viewBox="0 0 24 24"><rect x="4.4" y="10.4" width="15.2" height="9.6" rx="2.6"/><path d="M8.2 10.4V7.8a3.8 3.8 0 0 1 7.6 0v2.6"/></svg>
+        <input id="regPwd" type="password" placeholder="斗气秘钥（密码，至少 6 位）" autocomplete="new-password" />
+        <button class="eye" type="button" data-eye="regPwd" title="显示密码">
+          <svg viewBox="0 0 24 24"><path d="M2.6 12S6 6.2 12 6.2 21.4 12 21.4 12 18 17.8 12 17.8 2.6 12 2.6 12Z"/><circle cx="12" cy="12" r="2.8"/></svg>
+        </button>
+      </div>
+      <div class="msg" data-for="regPwd">密码不得少于 6 位</div>
+    </div>
+
+    <div class="field">
+      <div class="box">
+        <svg viewBox="0 0 24 24"><path d="M20 6 9 17l-5-5"/></svg>
+        <input id="regPwd2" type="password" placeholder="确认斗气秘钥" autocomplete="new-password" />
+        <button class="eye" type="button" data-eye="regPwd2" title="显示密码">
+          <svg viewBox="0 0 24 24"><path d="M2.6 12S6 6.2 12 6.2 21.4 12 21.4 12 18 17.8 12 17.8 2.6 12 2.6 12Z"/><circle cx="12" cy="12" r="2.8"/></svg>
+        </button>
+      </div>
+      <div class="msg" data-for="regPwd2">两次秘钥不一致</div>
+    </div>
+
+    <div class="cap-row">
+      <div class="field">
+        <div class="box">
+          <svg viewBox="0 0 24 24"><path d="M9.4 5.2 4.6 18.8M14.6 5.2l4.8 13.6M7.4 14.4h9.2M6.2 9.6h11.6"/></svg>
+          <input id="regCap" type="text" maxlength="4" placeholder="咒印（验证码）" autocomplete="off" />
+        </div>
+        <div class="msg" data-for="regCap">咒印错误，请重新识别</div>
+      </div>
+      <canvas id="captcha" width="232" height="100" title="点击刷新"></canvas>
+    </div>
+
+    <div class="opts">
+      <label class="chk"><input type="checkbox" id="agree" checked /><span class="tick"></span>同意《斗气大陆契约》</label>
+      <a class="link" href="斗破苍穹登录页.html">已有账号？去登录</a>
+    </div>
+
+    <button class="submit" id="btnReg" type="button"><span class="spin"></span>立 契 成 为 斗 者</button>
+
+    <div class="foot">归 来 亦 可 · <a class="link" href="斗破苍穹登录页.html">直 接 登 入 斗 气 大 陆</a></div>
+  </div>
+</main>
+
+<div class="themes" id="themes">
+  <i data-t="yaohuo" class="on" title="净莲妖火"></i>
+  <i data-t="qinglian" title="青莲地心火"></i>
+  <i data-t="yanyan" title="陨落心炎"></i>
+</div>
+
+<div id="toast"><span class="ic">✦</span><span id="toastText"></span></div>
+
+<script>
+(function(){
+  "use strict";
+  var $  = function(s,r){ return (r||document).querySelector(s); };
+  var $$ = function(s,r){ return Array.prototype.slice.call((r||document).querySelectorAll(s)); };
+  var toastEl = $('#toast'), toastText = $('#toastText'), toastTimer = null;
+  function toast(msg, ic){
+    toastText.textContent = msg;
+    $('.ic', toastEl).textContent = ic || '✦';
+    toastEl.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(function(){ toastEl.classList.remove('show'); }, 2600);
+  }
+
+  /* ===== 主题切换（与登录/首页一致） ===== */
+  var themeNames = { yaohuo:'净莲妖火', qinglian:'青莲地心火', yanyan:'陨落心炎' };
+  $$('#themes i').forEach(function(el){
+    el.addEventListener('click', function(){
+      $$('#themes i').forEach(function(x){ x.classList.remove('on'); });
+      el.classList.add('on');
+      var t = el.getAttribute('data-t');
+      document.body.setAttribute('data-theme', t);
+      readTheme();
+      try{ localStorage.setItem('dp_theme', t); }catch(e){}
+      toast('异火已换 · ' + themeNames[t]);
+    });
+  });
+  try{
+    var saved = localStorage.getItem('dp_theme');
+    if(saved){
+      document.body.setAttribute('data-theme', saved);
+      $$('#themes i').forEach(function(x){ x.classList.toggle('on', x.getAttribute('data-t')===saved); });
+    }
+  }catch(e){}
+
+  /* ===== 粒子背景（与首页一致） ===== */
+  var cv = $('#particles'), ctx = cv.getContext('2d');
+  var W = 0, H = 0, DPR = Math.min(window.devicePixelRatio || 1, 2);
+  var embers = [], petals = [], fireRGB = [169,123,255];
+  function hexToRGB(str, d){
+    var hex = String(str || '').trim().replace('#','');
+    if(hex.length === 3) hex = hex[0]+hex[0]+hex[1]+hex[1]+hex[2]+hex[2];
+    if(hex.length < 6) return d;
+    var c = [parseInt(hex.substr(0,2),16), parseInt(hex.substr(2,2),16), parseInt(hex.substr(4,2),16)];
+    return c.some(isNaN) ? d : c;
+  }
+  function readTheme(){
+    fireRGB = hexToRGB(getComputedStyle(document.body).getPropertyValue('--fire-1'), [169,123,255]);
+  }
+  function resize(){
+    W = window.innerWidth; H = window.innerHeight;
+    cv.width = W * DPR; cv.height = H * DPR;
+    cv.style.width = W + 'px'; cv.style.height = H + 'px';
+    ctx.setTransform(DPR,0,0,DPR,0,0);
+    var nE = Math.round(Math.min(90, Math.max(36, W / 16)));
+    var nP = Math.round(Math.min(22, Math.max(8, W / 70)));
+    embers = []; petals = [];
+    for(var i=0;i<nE;i++) embers.push(newEmber(true));
+    for(var j=0;j<nP;j++) petals.push(newPetal(true));
+  }
+  function newEmber(init){
+    return { x:Math.random()*W, y:init?Math.random()*H:H+Math.random()*60, r:0.7+Math.random()*2,
+      vy:0.16+Math.random()*0.5, ph:Math.random()*Math.PI*2, amp:0.25+Math.random()*0.8,
+      life:0, max:320+Math.random()*380, a:0.22+Math.random()*0.55 };
+  }
+  function newPetal(init){
+    return { x:Math.random()*W, y:init?Math.random()*H:-40-Math.random()*80, s:5+Math.random()*8,
+      vy:0.35+Math.random()*0.6, ph:Math.random()*Math.PI*2, rot:Math.random()*Math.PI*2,
+      vr:(Math.random()-0.5)*0.02, amp:0.5+Math.random()*1.1, a:0.16+Math.random()*0.3 };
+  }
+  var t = 0;
+  function loop(){
+    t += 0.016;
+    ctx.clearRect(0,0,W,H);
+    ctx.globalCompositeOperation = 'lighter';
+    for(var i=0;i<embers.length;i++){
+      var p = embers[i];
+      p.life++; p.y -= p.vy; p.ph += 0.012; p.x += Math.sin(p.ph) * p.amp * 0.5;
+      var fade = 1 - Math.abs(p.life / p.max - 0.5) * 2;
+      var alpha = Math.max(0, p.a * fade);
+      var g = ctx.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r*4);
+      g.addColorStop(0, 'rgba('+Math.min(255,fireRGB[0]+60)+','+Math.min(255,fireRGB[1]+40)+','+fireRGB[2]+','+alpha+')');
+      g.addColorStop(0.45,'rgba('+fireRGB[0]+','+fireRGB[1]+','+fireRGB[2]+','+(alpha*0.32)+')');
+      g.addColorStop(1,'rgba('+fireRGB[0]+','+fireRGB[1]+','+fireRGB[2]+',0)');
+      ctx.fillStyle = g; ctx.beginPath(); ctx.arc(p.x, p.y, p.r*4, 0, Math.PI*2); ctx.fill();
+      if(p.y < -50 || p.life > p.max) embers[i] = newEmber(false);
+    }
+    ctx.globalCompositeOperation = 'source-over';
+    for(var k=0;k<petals.length;k++){
+      var q = petals[k];
+      q.ph += 0.01; q.y += q.vy; q.x += Math.sin(q.ph) * q.amp; q.rot += q.vr;
+      var edge = Math.min(q.y/(H*0.25), 1, (H-q.y)/(H*0.25), 1);
+      var pa = Math.max(0, q.a * Math.max(0, edge));
+      ctx.save(); ctx.translate(q.x, q.y); ctx.rotate(q.rot); ctx.scale(1, 0.62);
+      var pg = ctx.createLinearGradient(-q.s, -q.s, q.s, q.s);
+      pg.addColorStop(0, 'rgba('+fireRGB[0]+','+fireRGB[1]+','+fireRGB[2]+','+pa+')');
+      pg.addColorStop(1, 'rgba(255,217,138,'+(pa*0.75)+')');
+      ctx.fillStyle = pg; ctx.beginPath();
+      ctx.moveTo(0,-q.s);
+      ctx.bezierCurveTo(q.s*0.9,-q.s*0.5, q.s*0.7,q.s*0.6, 0,q.s);
+      ctx.bezierCurveTo(-q.s*0.7,q.s*0.6, -q.s*0.9,-q.s*0.5, 0,-q.s);
+      ctx.fill(); ctx.restore();
+      if(q.y > H + 60) petals[k] = newPetal(false);
+    }
+    requestAnimationFrame(loop);
+  }
+
+  /* ===== 密码显隐 ===== */
+  $$('.eye').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var inp = $('#' + btn.getAttribute('data-eye'));
+      var show = inp.type === 'password';
+      inp.type = show ? 'text' : 'password';
+      btn.title = show ? '隐藏密码' : '显示密码';
+      btn.style.opacity = show ? 1 : .7;
+    });
+  });
+
+  /* ===== 咒印验证码 ===== */
+  var capCv = $('#captcha'), capCtx = capCv.getContext('2d'), capCode = '';
+  var capChars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+  function drawCaptcha(){
+    var cw = capCv.width, ch = capCv.height;
+    capCtx.clearRect(0,0,cw,ch);
+    capCtx.fillStyle = 'rgba(14,10,24,.7)';
+    capCtx.fillRect(0,0,cw,ch);
+    capCode = '';
+    for(var i=0;i<4;i++){
+      var ch2 = capChars.charAt(Math.floor(Math.random()*capChars.length));
+      capCode += ch2;
+      capCtx.save();
+      capCtx.font = 'bold ' + (28 + Math.random()*8) + 'px var(--serif), STKaiti, KaiTi, serif';
+      capCtx.fillStyle = 'hsl(' + (250 + Math.random()*60) + ',70%,' + (70 + Math.random()*15) + '%)';
+      capCtx.textBaseline = 'middle';
+      var ang = (Math.random()-0.5) * 0.5;
+      capCtx.translate(18 + i*52, ch/2 + (Math.random()-0.5)*8);
+      capCtx.rotate(ang);
+      capCtx.fillText(ch2, 0, 0);
+      capCtx.restore();
+    }
+    for(var n=0;n<22;n++){
+      capCtx.strokeStyle = 'rgba(255,217,138,' + (0.05 + Math.random()*0.12) + ')';
+      capCtx.beginPath();
+      capCtx.moveTo(Math.random()*cw, Math.random()*ch);
+      capCtx.lineTo(Math.random()*cw, Math.random()*ch);
+      capCtx.stroke();
+    }
+  }
+  capCv.addEventListener('click', function(){ drawCaptcha(); });
+
+  /* ===== 表单校验 ===== */
+  function setErr(el, msg){
+    var box = el.closest('.box');
+    if(box) box.classList.add('err');
+    var m = $('.msg[data-for="'+el.id+'"]');
+    if(m){ if(msg) m.textContent = msg; m.classList.add('show'); }
+  }
+  function clearErr(el){
+    var box = el.closest('.box');
+    if(box) box.classList.remove('err');
+    var m = $('.msg[data-for="'+el.id+'"]');
+    if(m) m.classList.remove('show');
+  }
+  $$('.field input').forEach(function(inp){
+    inp.addEventListener('input', function(){ clearErr(inp); });
+  });
+
+  function doRegister(btn){
+    var user = $('#regUser').value.trim();
+    var pwd  = $('#regPwd').value;
+    var pwd2 = $('#regPwd2').value.trim();
+    var cap  = $('#regCap').value.trim();
+    var agree = $('#agree').checked;
+
+    if(user.length < 3){ setErr($('#regUser'), '账号至少 3 个字符'); return; }
+    if(pwd.length < 6){ setErr($('#regPwd'), '密码不得少于 6 位'); return; }
+    if(pwd2 !== pwd){ setErr($('#regPwd2'), '两次秘钥不一致'); return; }
+    if(cap.toUpperCase() !== capCode){ setErr($('#regCap'), '咒印错误，请重新识别'); drawCaptcha(); return; }
+    if(!agree){ toast('请先同意《斗气大陆契约》'); return; }
+
+    var old = btn.innerHTML;
+    btn.classList.add('loading'); btn.disabled = true;
+    btn.innerHTML = '<span class="spin"></span>契 约 缔 结 中';
+    setTimeout(function(){
+      btn.classList.remove('loading');
+      btn.classList.add('done');
+      btn.innerHTML = '✦ 斗 者 已 入 籍';
+      try{ localStorage.setItem('dp_user', user); }catch(e){}
+      toast('契约已成，异火认主，欢迎加入斗气大陆！', '✦');
+      setTimeout(function(){ location.href = '斗破苍穹首页.html?user=' + encodeURIComponent(user); }, 1100);
+    }, 1500);
+  }
+  $('#btnReg').addEventListener('click', function(){ doRegister(this); });
+  document.addEventListener('keydown', function(e){ if(e.key === 'Enter'){ $('#btnReg').click(); } });
+
+  window.addEventListener('resize', resize);
+  readTheme();
+  resize();
+  drawCaptcha();
+  loop();
+})();
+</script>
+</body>
+</html>
