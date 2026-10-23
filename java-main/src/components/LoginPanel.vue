@@ -111,6 +111,9 @@ import { showToast } from '../composables/useToast'
 
 const emit = defineEmits(['goto-register'])
 
+// 后端登录接口地址（与后端 springBootTest 端口 8081 保持一致）
+const API_LOGIN = 'http://localhost:8081/api/user/login'
+
 const tabNames = ['账号登录', '手机验证', '扫码登录']
 const activeTab = ref(0)
 const tabEls = []
@@ -251,11 +254,29 @@ function doLogin (pane) {
   if (pane === 'account') {
     if (!validate(['user', 'pwd', 'cap'])) return
     loginLoading.value = true
-    setTimeout(() => {
-      loginLoading.value = false; loginDone.value = true
-      toast('登录成功，异火认主，斗气涌入经脉……', '✦')
-      setTimeout(() => { loginDone.value = false }, 2200)
-    }, 1500)
+    fetch(API_LOGIN, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ user: form.user.trim(), pwd: form.pwd })
+    })
+      .then(r => {
+        if (!r.ok) throw new Error('HTTP ' + r.status)
+        return r.json()
+      })
+      .then(res => {
+        loginLoading.value = false
+        if (res && res.code === 0) {
+          loginDone.value = true
+          toast(res.msg || '登录成功，异火认主，斗气涌入经脉……', '✦')
+          setTimeout(() => { loginDone.value = false }, 2200)
+        } else {
+          toast(res && res.msg ? res.msg : '登录失败，请稍后再试', '✕')
+        }
+      })
+      .catch(() => {
+        loginLoading.value = false
+        toast('网络异常，请确认后端服务已启动（http://localhost:8081）', '✕')
+      })
   } else {
     if (!validate(['phone', 'code'])) return
     smsLoading.value = true
