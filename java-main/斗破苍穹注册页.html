@@ -482,10 +482,10 @@ body{background:var(--ink);color:var(--text);font-family:var(--sans);overflow:hi
       btn.classList.remove('loading'); btn.classList.add('done'); btn.disabled=false;
       btn.innerHTML='✦ 契 约 已 立';
       toast('契约已成，异火待燃，欢迎加入斗气大陆！','✦');
-      setTimeout(function(){ btn.classList.remove('done'); btn.innerHTML=old; },2200);
+      setTimeout(function(){ location.href='斗破苍穹登录页.html'; }, 1400);
     },1500);
   });
-  // 登录入口跳转由上方 <a href> 处理
+  $('#toLogin').addEventListener('click', function(){ location.href = '斗破苍穹登录页.html'; });
   window.addEventListener('resize', resize);
   readTheme(); resize(); drawCaptcha(); requestAnimationFrame(loop);
 })();

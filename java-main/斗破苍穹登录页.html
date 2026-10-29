@@ -539,8 +539,11 @@
       btn.classList.remove('loading');
       btn.classList.add('done');
       btn.innerHTML = '✦ 斗 气 已 引 动';
+      var who = (document.querySelector('#user') || document.querySelector('#phone') || {}).value || '';
+      who = String(who).trim();
+      try{ localStorage.setItem('dp_user', who); }catch(e){}
       toast(done.msg, '✦');
-      setTimeout(function(){ btn.classList.remove('done'); btn.disabled = false; btn.innerHTML = old; }, 2200);
+      setTimeout(function(){ location.href = '斗破苍穹首页.html?user=' + encodeURIComponent(who); }, 1100);
     }, 1500);
   }
   $('#btnLogin').addEventListener('click', function(){
