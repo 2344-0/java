@@ -109,7 +109,7 @@ import { reactive, ref, computed, onMounted, onBeforeUnmount, nextTick, watch } 
 import { theme, getFireRGB } from '../composables/useTheme'
 import { showToast } from '../composables/useToast'
 
-const emit = defineEmits(['goto-register'])
+const emit = defineEmits(['goto-register', 'login-success'])
 
 // 后端登录接口地址（与后端 springBootTest 端口 8081 保持一致）
 const API_LOGIN = 'http://localhost:8081/api/user/login'
@@ -268,6 +268,8 @@ function doLogin (pane) {
         if (res && res.code === 0) {
           loginDone.value = true
           toast(res.msg || '登录成功，异火认主，斗气涌入经脉……', '✦')
+          // 通知 App 切换到首页门户（携带后端返回的账号名）
+          emit('login-success', { username: (res.data && res.data.username) || form.user.trim() })
           setTimeout(() => { loginDone.value = false }, 2200)
         } else {
           toast(res && res.msg ? res.msg : '登录失败，请稍后再试', '✕')
@@ -283,6 +285,7 @@ function doLogin (pane) {
     setTimeout(() => {
       smsLoading.value = false; smsDone.value = true
       toast('验证通过，欢迎回来，斗者。', '✦')
+      emit('login-success', { username: form.phone.trim() })
       setTimeout(() => { smsDone.value = false }, 2200)
     }, 1500)
   }
