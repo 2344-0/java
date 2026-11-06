@@ -12,16 +12,29 @@ echo ============================================
 set MYSQL_BIN=mysql
 where mysql >nul 2>nul
 if errorlevel 1 (
-  set MYSQL_BIN="C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe"
+  set MYSQL_BIN=C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe
 )
 
-:: 1) 初始化数据库（幂等，每次都执行，安全；target/node_modules 被清也不影响）
+:: 1) 建库建表（幂等：CREATE DATABASE / CREATE TABLE IF NOT EXISTS）
 echo [1/3] 初始化数据库 doupo ...
-%MYSQL_BIN% -uroot -p123456 < springBootTest\db\init.sql
+"%MYSQL_BIN%" -uroot -p123456 --default-character-set=utf8mb4 < springBootTest\sql\init.sql 2>nul
 if errorlevel 1 (
   echo [错误] 数据库初始化失败，请确认 MySQL 已启动且 root 密码为 123456
   pause
   exit /b 1
+)
+
+:: 1.1) 榜单数据：仅当 7 张榜单表缺失时才灌种子，避免覆盖手动改动过的数据
+"%MYSQL_BIN%" -uroot -p123456 -N -B -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='doupo' AND table_name IN ('t_fire','t_gongfa','t_pill','t_feed_post','t_hot_word','t_douqi','t_sect');" > "%TEMP%\doupo_tbl.txt" 2>nul
+set "TBLN="
+for /f "usebackq delims=" %%c in ("%TEMP%\doupo_tbl.txt") do set "TBLN=%%c"
+if "!TBLN!"=="7" (
+  echo       榜单数据已存在，跳过种子灌入。
+) else (
+  echo       检测到榜单表不完整，灌入种子数据 ...
+  "%MYSQL_BIN%" -uroot -p123456 --default-character-set=utf8mb4 < springBootTest\sql\home.sql 2>nul
+  "%MYSQL_BIN%" -uroot -p123456 --default-character-set=utf8mb4 < springBootTest\sql\extra.sql 2>nul
+  echo       榜单数据就绪。
 )
 echo       数据库就绪。
 
@@ -36,7 +49,7 @@ start "doupo-backend" cmd /k "cd /d %~dp0springBootTest && call %MVN% spring-boo
 
 :: 4) 启动前端（新窗口；node_modules 被清空会先 npm install）
 echo [3/3] 启动前端 http://localhost:5173 ...
-start "doupo-frontend" cmd /k "cd /d %~dp0vue && call npm install && call npm run dev"
+start "doupo-frontend" cmd /k "cd /d %~dp0java-main && call npm install && call npm run dev"
 
 echo.
 echo 已全部启动。后端首次编译需要几十秒，请稍候再打开 http://localhost:5173
