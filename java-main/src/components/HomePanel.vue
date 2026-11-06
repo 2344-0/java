@@ -3,7 +3,7 @@
     <!-- ===== 导航栏 ===== -->
     <header class="nav">
       <div class="nav-inner">
-        <a class="brand" href="javascript:void(0)" @click="goTop">
+        <a class="brand" href="javascript:void(0)" @click="goHome">
           <span class="seal">斗</span>
           <span class="brand-text"><b>斗破苍穹</b><i>斗气大陆</i></span>
         </a>
@@ -12,7 +12,7 @@
             v-for="(l, i) in navLinks"
             :key="l"
             :class="{ on: activeNav === i }"
-            :data-cat="navCats[i]"
+            :data-cat="navPages[i]"
             @click="onNav(i)"
           >{{ l }}</a>
         </nav>
@@ -36,6 +36,7 @@
     </header>
 
     <div class="wrap">
+      <template v-if="page === 'home'">
       <!-- ===== 英雄区 + 搜索栏 ===== -->
       <section class="hero">
         <div class="hero-rings"></div>
@@ -95,6 +96,22 @@
         </div>
       </section>
 
+      <!-- ===== 检索 · 丹药坊（仅搜索且有命中时出现） ===== -->
+      <section class="section" v-if="searchInput && searchPills.length">
+        <div class="section-head">
+          <h2><span class="spark"></span>检索 · 丹药坊</h2>
+          <a class="more" @click="resetFire">清除检索</a>
+        </div>
+        <div class="pill-results">
+          <article v-for="p in searchPills" :key="p.name" class="pr-card">
+            <span class="pr-grade">{{ p.grade }}</span>
+            <h4>{{ p.name }}</h4>
+            <p class="pr-eff">{{ p.effect }}</p>
+            <p class="pr-mat">主材 · {{ p.material || '——' }}</p>
+          </article>
+        </div>
+      </section>
+
       <!-- ===== 双栏：功法榜 + 斗者动态 ===== -->
       <section class="section">
         <div class="section-head"><h2><span class="spark"></span>斗气风云</h2></div>
@@ -128,14 +145,31 @@
         斗破苍穹 · 斗气大陆门户　|　手托莲台焚万法，尺倚身旁镇八荒<br />
         <a class="link" @click="$emit('logout')">退出斗气</a>
       </div>
+      </template>
+
+      <!-- ===== 子页面：异火榜 / 功法阁 / 丹药坊 / 斗气榜 / 宗门 ===== -->
+      <FireRankPanel v-else-if="page === 'fire'" />
+      <GongfaRankPanel v-else-if="page === 'gongfa'" />
+      <PillPanel v-else-if="page === 'pill'" />
+      <DouqiRankPanel v-else-if="page === 'douqi'" />
+      <SectPanel v-else-if="page === 'sect'" />
     </div>
   </div>
 </template>
 
 <script setup>
-import { ref, reactive, computed, nextTick } from 'vue'
+import { ref, reactive, computed, nextTick, onMounted } from 'vue'
 import { theme, themeMeta, setTheme } from '../composables/useTheme'
 import { showToast } from '../composables/useToast'
+import FireRankPanel from './FireRankPanel.vue'
+import GongfaRankPanel from './GongfaRankPanel.vue'
+import PillPanel from './PillPanel.vue'
+import DouqiRankPanel from './DouqiRankPanel.vue'
+import SectPanel from './SectPanel.vue'
+
+// 后端首页接口地址（与后端 springBootTest 端口 8081 保持一致）
+const API_HOME = 'http://localhost:8081/api/home'
+const API_SEARCH = 'http://localhost:8081/api/home/search'
 
 const props = defineProps({
   username: { type: String, default: '' }
@@ -146,18 +180,27 @@ const initial = computed(() => (props.username ? props.username.charAt(0) : '斗
 
 /* ===== 导航 ===== */
 const navLinks = ['首页', '异火榜', '功法阁', '丹药坊', '斗气榜', '宗门']
-const navCats = ['', '异火', '功法', '丹药', '斗气', '宗门']
+// 每个导航项对应的子页面：首页 / 异火榜 / 功法阁 / 丹药坊 为真实页面，斗气榜/宗门暂未展开
+const navPages = ['home', 'fire', 'gongfa', 'pill', 'douqi', 'sect']
 const activeNav = ref(0)
+const page = ref('home')
+
 function onNav (i) {
   activeNav.value = i
-  const c = navCats[i]
-  if (c) {
-    searchInput.value = c
-    doSearch(c)
-    toast('前往 · ' + navLinks[i])
+  const p = navPages[i]
+  if (p === 'home') {
+    page.value = 'home'
+    goTop()
   } else {
+    page.value = p
     goTop()
   }
+}
+// 品牌点击：回到首页
+function goHome () {
+  page.value = 'home'
+  activeNav.value = 0
+  goTop()
 }
 function goTop () { window.scrollTo({ top: 0, behavior: 'smooth' }) }
 function showUserInfo () {
@@ -189,67 +232,117 @@ const cats = [
   { name: '拍卖行', desc: '天材地宝', icon: '<circle cx="12" cy="12" r="8"/><path d="M12 8v8M9 10h6M9 14h6"/>' }
 ]
 function browse (cat) {
-  searchInput.value = cat
-  doSearch(cat)
-  toast('浏览 · ' + cat)
+  const map = { '异火榜': 'fire', '功法阁': 'gongfa', '丹药坊': 'pill' }
+  if (map[cat]) {
+    page.value = map[cat]
+    activeNav.value = navLinks.indexOf(cat)
+    goTop()
+  } else {
+    toast('此卷轴尚未展开 · ' + cat, '✦')
+  }
 }
 
-/* ===== 异火图鉴 ===== */
-const fires = reactive([
-  { name: '净莲妖火', rank: '异火榜 · 第三', lv: '榜三 · 灵智化生', desc: '呈莲花之形，可化人形，焚尽万物而灵智自生，乃异火中罕见具魂者。', kw: '净莲妖火 妖火 莲台', hidden: false },
-  { name: '青莲地心火', rank: '异火榜 · 第十九', lv: '榜十九 · 地心所孕', desc: '生于地心熔岩，莲台模样，可炼体亦可炼丹，温润而炽烈。', kw: '青莲地心火 青莲 地心', hidden: false },
-  { name: '陨落心炎', rank: '异火榜 · 第十四', lv: '榜十四 · 助修炼', desc: '潜伏体内助长斗气，修炼事半功倍，然反噬亦烈，需以心智制之。', kw: '陨落心炎 心炎 修炼', hidden: false },
-  { name: '骨灵冷火', rank: '异火榜 · 第十一', lv: '榜十一 · 冰火相济', desc: '韩枫师徒所掌之异火，与焚决相融可成冰火双重，诡谲非常。', kw: '骨灵冷火 骨灵 冷火', hidden: false },
-  { name: '海心焰', rank: '异火榜 · 第十五', lv: '榜十五 · 深海洋流', desc: '生于万丈深海之底，呈幽蓝之色，炽热中藏冰凉，炼药之上品。', kw: '海心焰 海心 海洋', hidden: false },
-  { name: '三千焱炎火', rank: '异火榜 · 第九', lv: '榜九 · 星辰不灭', desc: '又称三千星空焱炎，具不灭之体，受创可自星空重生，威能滔天。', kw: '三千焱炎火 三千 星空', hidden: false },
-  { name: '九幽金祖火', rank: '异火榜 · 第六', lv: '榜六 · 金芒镇幽', desc: '幽冥之中生出金芒，可焚魂炼魄，与火山石焰融合可衍新生异火。', kw: '九幽金祖火 九幽 金祖', hidden: false },
-  { name: '陀舍古帝烛火', rank: '异火榜 · 第一', lv: '榜一 · 万火之祖', desc: '异火榜魁首，相传为万火之始，集千家异火于一身，可焚天煮海。', kw: '陀舍古帝烛火 陀舍 古帝 帝火', hidden: false }
-])
+/* ===== 异火图鉴（数据来自后端 /api/home） ===== */
+const fires = ref([])
 const fireEmpty = ref(false)
+const searchPills = ref([])
+const homeLoading = ref(false)
 
+// 把后端异火字段映射为前端卡片所需结构
+function mapFire (f) {
+  return { name: f.name, rank: f.rankName, lv: f.level, desc: f.description, hidden: false }
+}
+
+// 首页展示：一次拉取热词、异火、功法、动态
+function loadHome () {
+  homeLoading.value = true
+  fetch(API_HOME)
+    .then(r => {
+      if (!r.ok) throw new Error('HTTP ' + r.status)
+      return r.json()
+    })
+    .then(res => {
+      homeLoading.value = false
+      if (res && res.code === 0 && res.data) {
+        const d = res.data
+        fires.value = (d.fires || []).map(mapFire)
+        gongfa.value = (d.gongfa || []).map(g => ({
+          name: g.name, desc: g.description, hot: formatHot(g.hotValue)
+        }))
+        feed.value = d.feed || []
+        hotWords.value = d.hotWords || []
+        fireEmpty.value = fires.value.length === 0
+      } else {
+        toast(res && res.msg ? res.msg : '首页数据加载失败', '✕')
+      }
+    })
+    .catch(() => {
+      homeLoading.value = false
+      toast('后端服务未启动，首页数据加载失败（http://localhost:8081）', '✕')
+    })
+}
+
+onMounted(loadHome)
+
+// 搜索：走后端 /api/home/search，同时命中异火 / 功法 / 斗者
 function doSearch (kw) {
   kw = (kw || '').trim()
   if (!kw) {
-    fires.forEach(c => { c.hidden = false })
+    fires.value.forEach(c => { c.hidden = false })
     fireEmpty.value = false
+    searchPills.value = []
     toast('已显示全部异火')
     return
   }
-  let hit = 0
-  fires.forEach(c => {
-    const hay = (c.kw || '') + ' ' + c.name
-    const ok = hay.toLowerCase().indexOf(kw.toLowerCase()) > -1
-    c.hidden = !ok
-    if (ok) hit++
-  })
-  fireEmpty.value = hit === 0
-  toast(hit ? ('寻得 ' + hit + ' 道异火：' + kw) : ('未寻得「' + kw + '」，换个咒印再试'))
-  nextTick(() => {
-    if (fireGrid.value) fireGrid.value.scrollIntoView({ behavior: 'smooth', block: 'center' })
-  })
+  fetch(API_SEARCH + '?kw=' + encodeURIComponent(kw))
+    .then(r => {
+      if (!r.ok) throw new Error('HTTP ' + r.status)
+      return r.json()
+    })
+    .then(res => {
+      if (!(res && res.code === 0 && res.data)) {
+        toast(res && res.msg ? res.msg : '搜索失败，请稍后再试', '✕')
+        return
+      }
+      const d = res.data
+      const hitNames = new Set((d.fires || []).map(f => f.name))
+      fires.value.forEach(c => { c.hidden = !hitNames.has(c.name) })
+      fireEmpty.value = hitNames.size === 0
+      searchPills.value = d.pills || []
+      // 汇总提示：异火 / 功法 / 丹药 / 斗者 各命中几条
+      const parts = []
+      if ((d.fires || []).length) parts.push((d.fires).length + ' 道异火')
+      if ((d.gongfa || []).length) parts.push((d.gongfa).length + ' 部功法')
+      if ((d.pills || []).length) parts.push((d.pills).length + ' 味丹药')
+      if ((d.users || []).length) parts.push((d.users).length + ' 位斗者')
+      toast(d.total > 0 ? ('寻得 ' + parts.join('、') + '：' + kw) : ('未寻得「' + kw + '」，换个咒印再试'))
+      nextTick(() => {
+        if (fireGrid.value) fireGrid.value.scrollIntoView({ behavior: 'smooth', block: 'center' })
+      })
+    })
+    .catch(() => toast('网络异常，搜索失败（http://localhost:8081）', '✕'))
 }
 function resetFire () {
   searchInput.value = ''
   doSearch('')
 }
 
-const hotWords = ['净莲妖火', '焚决', '玄重尺', '药老', '萧炎']
+const hotWords = ref([])
 
-/* ===== 功法榜 + 动态 ===== */
+/* ===== 功法榜 + 动态（数据来自后端 /api/home） ===== */
 const cnNum = ['壹', '贰', '叁', '肆', '伍']
-const gongfa = [
-  { name: '焚决', desc: '可吞噬异火进阶的至强功法', hot: '9.8w' },
-  { name: '九转斗者决', desc: '稳固根基，斗气绵长不绝', hot: '6.2w' },
-  { name: '八极崩', desc: '近身斗技，一击叠浪八重', hot: '5.5w' },
-  { name: '焰分噬浪尺', desc: '玄重尺所施，尺出焰浪滔天', hot: '4.9w' },
-  { name: '三千雷动', desc: '身法斗技，雷影瞬息千里', hot: '4.1w' }
-]
-const feed = [
-  { name: '药老', time: '片刻前', text: '新得一味「龙血芝」，可助斗王突破瓶颈，欲求者速来丹药坊。' },
-  { name: '萧炎', time: '半个时辰前', text: '于迦南学院秘境收服青莲地心火，斗气大涨，叩谢诸位相助。' },
-  { name: '美杜莎', time: '今晨', text: '蛇人族与迦南结盟，异火共享事宜已在宗门议定。' },
-  { name: '薰儿', time: '昨日', text: '古族藏书阁新添《异火通鉴》，已向诸位斗者开放查阅。' }
-]
+const gongfa = ref([])
+const feed = ref([])
+
+// 热度值格式化：98000 -> 9.8w
+function formatHot (v) {
+  const n = Number(v) || 0
+  if (n >= 10000) {
+    const w = n / 10000
+    return (Math.round(w * 10) / 10) + 'w'
+  }
+  return String(n)
+}
 
 function toast (m, ic) { showToast(m, ic) }
 </script>
@@ -269,4 +362,15 @@ function toast (m, ic) { showToast(m, ic) }
 .home::-webkit-scrollbar{width:8px;}
 .home::-webkit-scrollbar-thumb{background:rgba(255,217,138,.22);border-radius:4px;}
 .home::-webkit-scrollbar-track{background:transparent;}
+
+/* 首页搜索 · 丹药坊命中结果 */
+.home .pill-results{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
+.home .pr-card{position:relative;border-radius:16px;padding:16px 18px;background:linear-gradient(165deg, rgba(24,19,38,.82), rgba(10,8,18,.9));border:1px solid var(--line);box-shadow:0 24px 60px -30px rgba(0,0,0,.9);transition:transform .25s, box-shadow .3s, border-color .3s;overflow:hidden;}
+.home .pr-card:hover{transform:translateY(-4px);border-color:var(--line-strong);box-shadow:0 30px 60px -28px var(--glow);}
+.home .pr-grade{font-family:var(--serif);font-size:12px;letter-spacing:.06em;color:#140a22;padding:4px 11px;border-radius:99px;background:linear-gradient(140deg,var(--rune),var(--fire-1));box-shadow:0 0 16px -3px var(--glow);}
+.home .pr-card h4{font-family:var(--serif);font-size:18px;font-weight:700;letter-spacing:.08em;margin:12px 0 0;}
+.home .pr-eff{font-size:12.5px;line-height:1.8;color:var(--rune);margin:8px 0 0;font-family:var(--serif);}
+.home .pr-mat{font-size:11.5px;line-height:1.7;color:#cfc6e2;margin:6px 0 0;}
+@media (max-width:1024px){.home .pill-results{grid-template-columns:repeat(2,1fr);}}
+@media (max-width:640px){.home .pill-results{grid-template-columns:1fr;}}
 </style>
