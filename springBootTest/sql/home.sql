@@ -19,6 +19,7 @@ CREATE TABLE `t_fire`  (
   `level` varchar(64) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '品阶描述，如：榜三 · 灵智化生',
   `description` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '异火简介',
   `keywords` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '搜索关键词（空格分隔），如：净莲妖火 妖火 莲台',
+  `image` varchar(255) CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NULL DEFAULT NULL COMMENT '异火配图路径（相对站点根，如：/images/fires/jinglian_yaohuo.png）',
   `sort` int NOT NULL DEFAULT 0 COMMENT '排序值，越小越靠前',
   `created_at` datetime NULL DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   `updated_at` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
@@ -95,16 +96,16 @@ CREATE TABLE `t_pill`  (
 -- 种子数据（与前端 HomePanel.vue 原写死内容一致）
 -- ============================================================
 
--- 异火图鉴（8 道）
-INSERT INTO `t_fire` (`name`, `rank_name`, `level`, `description`, `keywords`, `sort`) VALUES
-('净莲妖火',     '异火榜 · 第三',  '榜三 · 灵智化生', '呈莲花之形，可化人形，焚尽万物而灵智自生，乃异火中罕见具魂者。', '净莲妖火 妖火 莲台', 3),
-('青莲地心火',   '异火榜 · 第十九','榜十九 · 地心所孕','生于地心熔岩，莲台模样，可炼体亦可炼丹，温润而炽烈。',           '青莲地心火 青莲 地心', 19),
-('陨落心炎',     '异火榜 · 第十四','榜十四 · 助修炼', '潜伏体内助长斗气，修炼事半功倍，然反噬亦烈，需以心智制之。',     '陨落心炎 心炎 修炼', 14),
-('骨灵冷火',     '异火榜 · 第十一','榜十一 · 冰火相济','韩枫师徒所掌之异火，与焚决相融可成冰火双重，诡谲非常。',         '骨灵冷火 骨灵 冷火', 11),
-('海心焰',       '异火榜 · 第十五','榜十五 · 深海洋流','生于万丈深海之底，呈幽蓝之色，炽热中藏冰凉，炼药之上品。',       '海心焰 海心 海洋', 15),
-('三千焱炎火',   '异火榜 · 第九',  '榜九 · 星辰不灭', '又称三千星空焱炎，具不灭之体，受创可自星空重生，威能滔天。',     '三千焱炎火 三千 星空', 9),
-('九幽金祖火',   '异火榜 · 第六',  '榜六 · 金芒镇幽', '幽冥之中生出金芒，可焚魂炼魄，与火山石焰融合可衍新生异火。',     '九幽金祖火 九幽 金祖', 6),
-('陀舍古帝烛火', '异火榜 · 第一',  '榜一 · 万火之祖', '异火榜魁首，相传为万火之始，集千家异火于一身，可焚天煮海。',     '陀舍古帝烛火 陀舍 古帝 帝火', 1);
+-- 异火图鉴（8 道，image 指向前端 public/images/fires/ 下的配图）
+INSERT INTO `t_fire` (`name`, `rank_name`, `level`, `description`, `keywords`, `image`, `sort`) VALUES
+('净莲妖火',     '异火榜 · 第三',  '榜三 · 灵智化生', '呈莲花之形，可化人形，焚尽万物而灵智自生，乃异火中罕见具魂者。', '净莲妖火 妖火 莲台', '/images/fires/jinglian_yaohuo.png', 3),
+('青莲地心火',   '异火榜 · 第十九','榜十九 · 地心所孕','生于地心熔岩，莲台模样，可炼体亦可炼丹，温润而炽烈。',           '青莲地心火 青莲 地心', '/images/fires/qinglian_dixinhuo.png', 19),
+('陨落心炎',     '异火榜 · 第十四','榜十四 · 助修炼', '潜伏体内助长斗气，修炼事半功倍，然反噬亦烈，需以心智制之。',     '陨落心炎 心炎 修炼', '/images/fires/yunluo_xinyan.png', 14),
+('骨灵冷火',     '异火榜 · 第十一','榜十一 · 冰火相济','韩枫师徒所掌之异火，与焚决相融可成冰火双重，诡谲非常。',         '骨灵冷火 骨灵 冷火', '/images/fires/guling_lenghuo.png', 11),
+('海心焰',       '异火榜 · 第十五','榜十五 · 深海洋流','生于万丈深海之底，呈幽蓝之色，炽热中藏冰凉，炼药之上品。',       '海心焰 海心 海洋', '/images/fires/haixin_yan.png', 15),
+('三千焱炎火',   '异火榜 · 第九',  '榜九 · 星辰不灭', '又称三千星空焱炎，具不灭之体，受创可自星空重生，威能滔天。',     '三千焱炎火 三千 星空', '/images/fires/sanqian_yanyanhuo.png', 9),
+('九幽金祖火',   '异火榜 · 第六',  '榜六 · 金芒镇幽', '幽冥之中生出金芒，可焚魂炼魄，与火山石焰融合可衍新生异火。',     '九幽金祖火 九幽 金祖', '/images/fires/jiuyou_jinzuhuo.png', 6),
+('陀舍古帝烛火', '异火榜 · 第一',  '榜一 · 万火之祖', '异火榜魁首，相传为万火之始，集千家异火于一身，可焚天煮海。',     '陀舍古帝烛火 陀舍 古帝 帝火', '/images/fires/tuoshe_gudi_zhuhuo.png', 1);
 
 -- 热门功法（5 部）
 INSERT INTO `t_gongfa` (`name`, `description`, `hot_value`, `sort`) VALUES

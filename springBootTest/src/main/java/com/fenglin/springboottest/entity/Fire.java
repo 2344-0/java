@@ -32,6 +32,9 @@ public class Fire {
     /** 搜索关键词（空格分隔） */
     private String keywords;
 
+    /** 异火配图路径（相对站点根，如 /images/fires/jinglian_yaohuo.png） */
+    private String image;
+
     /** 排序值，越小越靠前（对应异火榜名次） */
     private Integer sort;
 
@@ -87,6 +90,14 @@ public class Fire {
 
     public void setKeywords(String keywords) {
         this.keywords = keywords;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 
     public Integer getSort() {
