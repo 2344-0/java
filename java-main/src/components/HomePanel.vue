@@ -87,8 +87,8 @@
             class="card fire-card"
             :style="{ display: f.hidden ? 'none' : '' }"
           >
+            <img class="fc-img" :src="f.image" :alt="f.name" loading="lazy" @error="onImgError" />
             <span class="rank">{{ f.rank }}</span>
-            <svg class="flame" viewBox="0 0 24 24" fill="none" stroke="var(--fire-1)" stroke-width="1.4"><path d="M12 3c1 3-2 4-2 7a3 3 0 0 0 6 0c0-1-.5-2-1-2.5C16 9 18 12 18 15a6 6 0 1 1-12 0c0-4 3-6 4-8 .6-1 1.4-2.2 2-4Z"/></svg>
             <h3>{{ f.name }}</h3><span class="lv">{{ f.lv }}</span>
             <p>{{ f.desc }}</p>
           </article>
@@ -250,7 +250,13 @@ const homeLoading = ref(false)
 
 // 把后端异火字段映射为前端卡片所需结构
 function mapFire (f) {
-  return { name: f.name, rank: f.rankName, lv: f.level, desc: f.description, hidden: false }
+  return { name: f.name, rank: f.rankName, lv: f.level, desc: f.description, image: f.image, hidden: false }
+}
+
+// 异火配图加载失败时的兜底：隐藏破图，避免影响版面
+function onImgError (e) {
+  const el = e && e.target
+  if (el) el.style.visibility = 'hidden'
 }
 
 // 首页展示：一次拉取热词、异火、功法、动态

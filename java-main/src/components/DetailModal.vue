@@ -3,6 +3,7 @@
     <div v-if="open" class="dm-mask" @click.self="$emit('close')">
       <div class="dm-card" role="dialog" aria-modal="true">
         <button class="dm-close" @click="$emit('close')" aria-label="关闭">✕</button>
+        <img v-if="item.img" class="dm-img" :src="item.img" :alt="item.title" loading="lazy" />
         <span class="dm-lead">{{ item.lead }}</span>
         <div class="dm-rank">{{ item.rank }}</div>
         <h3 class="dm-title">{{ item.title }}</h3>
@@ -56,6 +57,7 @@ defineEmits(['close'])
   background:rgba(255,255,255,.04);border:1px solid var(--line);color:var(--muted);font-size:15px;line-height:1;
   transition:.25s;}
 .dm-close:hover{color:var(--text);border-color:var(--line-strong);box-shadow:0 0 14px -4px var(--glow);}
+.dm-img{display:block;width:100%;height:190px;object-fit:cover;border-radius:14px;margin-bottom:18px;filter:saturate(1.05) contrast(1.02);border:1px solid var(--line);box-shadow:0 18px 40px -20px var(--glow);}
 
 .dm-lead{font-family:var(--serif);font-size:12px;letter-spacing:.3em;color:var(--rune);}
 .dm-rank{margin-top:8px;display:inline-block;font-size:11.5px;letter-spacing:.14em;color:var(--rune);

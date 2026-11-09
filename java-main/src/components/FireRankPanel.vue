@@ -20,8 +20,12 @@
             <b>{{ i + 1 }}</b>
           </div>
           <div class="r-card">
+            <div class="rb-media">
+              <img class="rb-img" :src="f.image" :alt="f.name" loading="lazy"
+                   @error="onImgError" />
+              <span class="rb-rank floating">{{ f.rankName }}</span>
+            </div>
             <div class="rb-head">
-              <span class="rb-rank">{{ f.rankName }}</span>
               <h3>{{ f.name }}</h3>
               <span class="lv">{{ f.level }}</span>
             </div>
@@ -57,8 +61,15 @@ function openDetail (f) {
     title: f.name,
     tag: f.level,
     desc: f.description,
+    img: f.image,
     rows: [{ label: '关键词', value: f.keywords }]
   }
+}
+
+// 图片加载失败时的兜底：隐藏破图，避免影响版面
+function onImgError (e) {
+  const el = e && e.target
+  if (el) el.style.visibility = 'hidden'
 }
 
 onMounted(load)
@@ -109,6 +120,12 @@ function load () {
   background:linear-gradient(160deg, rgba(255,217,138,.22), rgba(169,123,255,.28));
   box-shadow:0 0 30px -6px var(--glow);
 }
+
+/* 异火配图 */
+.rb-media{position:relative;margin:-16px -20px 14px;border-radius:16px 16px 0 0;overflow:hidden;height:150px;background:radial-gradient(120% 120% at 50% 0%,rgba(169,123,255,.18),rgba(10,8,18,.9));}
+.rb-img{width:100%;height:100%;object-fit:cover;display:block;filter:saturate(1.05) contrast(1.02);}
+.rb-media::after{content:"";position:absolute;inset:0;background:linear-gradient(180deg,transparent 40%,rgba(10,8,18,.92));pointer-events:none;}
+.rb-rank.floating{position:absolute;left:14px;bottom:12px;z-index:2;font-size:11.5px;letter-spacing:.14em;color:var(--rune);padding:3px 10px;border-radius:99px;border:1px solid var(--line-strong);background:rgba(10,8,18,.6);backdrop-filter:blur(4px);}
 
 /* 右侧卡片 */
 .r-card{position:relative;flex:1;border-radius:16px;padding:16px 20px;
