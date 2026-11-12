@@ -21,6 +21,10 @@
             <span class="av">{{ initial }}</span>
             <span><b>{{ username || '萧炎' }}</b> <span class="lv">斗之气三段</span></span>
           </div>
+          <button class="admin-entry" type="button" title="进入后台管理系统" @click="$emit('goto-admin')">
+            <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M9 9v11"/></svg>
+            后台管理
+          </button>
           <div class="themes">
             <i
               v-for="opt in themeOpts"
@@ -174,7 +178,7 @@ const API_SEARCH = 'http://localhost:8081/api/home/search'
 const props = defineProps({
   username: { type: String, default: '' }
 })
-const emit = defineEmits(['logout'])
+const emit = defineEmits(['logout', 'goto-admin'])
 
 const initial = computed(() => (props.username ? props.username.charAt(0) : '斗'))
 
@@ -368,6 +372,17 @@ function toast (m, ic) { showToast(m, ic) }
 .home::-webkit-scrollbar{width:8px;}
 .home::-webkit-scrollbar-thumb{background:rgba(255,217,138,.22);border-radius:4px;}
 .home::-webkit-scrollbar-track{background:transparent;}
+
+/* 导航栏 · 后台管理入口按钮 */
+.admin-entry{
+  display:flex;align-items:center;gap:7px;height:34px;padding:0 14px;border-radius:99px;
+  cursor:pointer;white-space:nowrap;font-family:var(--sans);font-size:12.5px;letter-spacing:.08em;
+  color:var(--rune);background:rgba(255,217,138,.07);border:1px solid var(--line-strong);
+  transition:background .25s, box-shadow .25s, transform .25s;
+}
+.admin-entry svg{width:14px;height:14px;flex:none;stroke:currentColor;fill:none;stroke-width:1.7;}
+.admin-entry:hover{background:rgba(255,217,138,.18);box-shadow:0 0 16px -4px var(--glow);transform:translateY(-1px);}
+@media (max-width:640px){.admin-entry{padding:0 10px;font-size:11.5px;}}
 
 /* 首页搜索 · 丹药坊命中结果 */
 .home .pill-results{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;}
