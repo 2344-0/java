@@ -46,9 +46,10 @@
 import { ref, onMounted } from 'vue'
 import { showToast } from '../composables/useToast'
 import DetailModal from './DetailModal.vue'
+import { API_BASE } from '../api-config'
 
-// 后端排行榜接口（与 springBootTest 端口 8081 保持一致）
-const API = 'http://localhost:8081/api/rank/fires'
+// 后端排行榜接口（地址来自 ../api-config.js，端口 8081）
+const API = API_BASE + '/api/rank/fires'
 
 const fires = ref([])
 const loading = ref(true)
@@ -88,7 +89,7 @@ function load () {
     })
     .catch(() => {
       loading.value = false
-      showToast('后端服务未启动（http://localhost:8081）', '✕')
+      showToast(`后端服务未启动（${API_BASE}）`, '✕')
     })
 }
 </script>

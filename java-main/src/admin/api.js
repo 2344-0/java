@@ -1,6 +1,8 @@
 // 后台管理系统 · 接口封装
-// 后端地址与前端 HomePanel.vue 中写死的 8081 端口保持一致。
-export const ADMIN_API = 'http://localhost:8081/api/admin'
+// 后端地址统一取自 ../api-config.js（换 IP 只改那一处）
+import { API_BASE } from '../api-config'
+
+export const ADMIN_API = API_BASE + '/api/admin'
 
 const TOKEN_KEY = 'doupo_admin_token'
 const USER_KEY = 'doupo_admin_user'
@@ -41,7 +43,7 @@ export async function adminRequest (path, options = {}) {
   try {
     response = await fetch(ADMIN_API + path, Object.assign({}, options, { headers }))
   } catch (e) {
-    return { code: -1, msg: '无法连接后端服务（http://localhost:8081）', data: null }
+    return { code: -1, msg: `无法连接后端服务（${API_BASE}）`, data: null }
   }
 
   try {

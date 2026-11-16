@@ -66,6 +66,7 @@
 import { reactive, ref, computed, onMounted, onBeforeUnmount, watch } from 'vue'
 import { theme, getFireRGB } from '../composables/useTheme'
 import { showToast } from '../composables/useToast'
+import { API_BASE } from '../api-config'
 
 const emit = defineEmits(['goto-login'])
 
@@ -155,8 +156,8 @@ function validate () {
   return true
 }
 
-// 后端注册接口地址（dev 环境后端端口 8081，与 application-dev.properties 保持一致）
-const API_REGISTER = 'http://localhost:8081/api/user/register'
+// 后端注册接口地址（地址来自 ../api-config.js，端口 8081）
+const API_REGISTER = API_BASE + '/api/user/register'
 
 function doRegister () {
   if (!validate()) return

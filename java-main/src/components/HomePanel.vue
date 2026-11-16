@@ -170,10 +170,11 @@ import GongfaRankPanel from './GongfaRankPanel.vue'
 import PillPanel from './PillPanel.vue'
 import DouqiRankPanel from './DouqiRankPanel.vue'
 import SectPanel from './SectPanel.vue'
+import { API_BASE } from '../api-config'
 
-// 后端首页接口地址（与后端 springBootTest 端口 8081 保持一致）
-const API_HOME = 'http://localhost:8081/api/home'
-const API_SEARCH = 'http://localhost:8081/api/home/search'
+// 后端首页接口地址（地址来自 ../api-config.js，端口 8081）
+const API_HOME = API_BASE + '/api/home'
+const API_SEARCH = API_BASE + '/api/home/search'
 
 const props = defineProps({
   username: { type: String, default: '' }
@@ -288,7 +289,7 @@ function loadHome () {
     })
     .catch(() => {
       homeLoading.value = false
-      toast('后端服务未启动，首页数据加载失败（http://localhost:8081）', '✕')
+      toast(`后端服务未启动，首页数据加载失败（${API_BASE}）`, '✕')
     })
 }
 
@@ -330,7 +331,7 @@ function doSearch (kw) {
         if (fireGrid.value) fireGrid.value.scrollIntoView({ behavior: 'smooth', block: 'center' })
       })
     })
-    .catch(() => toast('网络异常，搜索失败（http://localhost:8081）', '✕'))
+    .catch(() => toast(`网络异常，搜索失败（${API_BASE}）`, '✕'))
 }
 function resetFire () {
   searchInput.value = ''

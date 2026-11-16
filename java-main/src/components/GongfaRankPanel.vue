@@ -45,8 +45,9 @@
 import { ref, computed, onMounted } from 'vue'
 import { showToast } from '../composables/useToast'
 import DetailModal from './DetailModal.vue'
+import { API_BASE } from '../api-config'
 
-const API = 'http://localhost:8081/api/rank/gongfas'
+const API = API_BASE + '/api/rank/gongfas'
 
 const gongfas = ref([])
 const loading = ref(true)
@@ -103,7 +104,7 @@ function load () {
     })
     .catch(() => {
       loading.value = false
-      showToast('后端服务未启动（http://localhost:8081）', '✕')
+      showToast(`后端服务未启动（${API_BASE}）`, '✕')
     })
 }
 </script>

@@ -108,11 +108,12 @@
 import { reactive, ref, computed, onMounted, onBeforeUnmount, nextTick, watch } from 'vue'
 import { theme, getFireRGB } from '../composables/useTheme'
 import { showToast } from '../composables/useToast'
+import { API_BASE } from '../api-config'
 
 const emit = defineEmits(['goto-register', 'login-success'])
 
-// 后端登录接口地址（与后端 springBootTest 端口 8081 保持一致）
-const API_LOGIN = 'http://localhost:8081/api/user/login'
+// 后端登录接口地址（地址来自 ../api-config.js，端口 8081）
+const API_LOGIN = API_BASE + '/api/user/login'
 
 const tabNames = ['账号登录', '手机验证', '扫码登录']
 const activeTab = ref(0)
@@ -277,7 +278,7 @@ function doLogin (pane) {
       })
       .catch(() => {
         loginLoading.value = false
-        toast('网络异常，请确认后端服务已启动（http://localhost:8081）', '✕')
+        toast(`网络异常，请确认后端服务已启动（${API_BASE}）`, '✕')
       })
   } else {
     if (!validate(['phone', 'code'])) return
