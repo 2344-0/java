@@ -1,13 +1,11 @@
 package com.fenglin.springboottest.api;
 
-import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 import com.fenglin.springboottest.common.Result;
 import com.fenglin.springboottest.dto.AdminLoginDTO;
-import com.fenglin.springboottest.entity.Admin;
-import com.fenglin.springboottest.mapper.AdminMapper;
+import com.fenglin.springboottest.entity.User;
+import com.fenglin.springboottest.mapper.UserMapper;
 import com.fenglin.springboottest.service.AdminSession;
 import jakarta.annotation.Resource;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -25,19 +23,21 @@ import java.util.Map;
  *   GET  /api/admin/check   校验登录态（需 X-Admin-Token）
  *   POST /api/admin/logout  退出登录（需 X-Admin-Token）
  *
- * 管理员数据独立存放在 t_admin，与前台斗者 t_user 互不干扰。
+ * 管理员身份来自 t_user.permission = 0 的斗者账号；
+ * permission = 1 的普通斗者即使账号密码正确也不允许进入后台。
  */
 @RestController
 @RequestMapping("/api/admin")
 public class AdminController {
 
+    /** 管理员权限值 */
+    private static final int PERMISSION_ADMIN = 0;
+
     @Resource
-    private AdminMapper adminMapper;
+    private UserMapper userMapper;
 
     @Resource
     private AdminSession adminSession;
-
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     @PostMapping("/login")
     public Result<?> login(@RequestBody AdminLoginDTO dto) {
@@ -48,17 +48,22 @@ public class AdminController {
             return Result.fail("请输入管理员账号与执掌秘钥");
         }
 
-        Admin admin = adminMapper.selectOne(
-                new LambdaQueryWrapper<Admin>().eq(Admin::getUsername, username));
-        if (admin == null || !passwordEncoder.matches(password, admin.getPassword())) {
+        // 账号密码均来自 t_user（密码按需求明文比对）
+        User user = userMapper.selectByUsername(username);
+        if (user == null || !password.equals(user.getPassword())) {
             return Result.fail("执掌令有误，账号或秘钥不正确");
         }
 
-        String token = adminSession.create(admin);
+        // 权限校验：只有权限为 0（管理员）的账号才能进入后台
+        if (user.getPermission() == null || user.getPermission() != PERMISSION_ADMIN) {
+            return Result.fail("此账号无后台执掌权限，仅管理员可进入");
+        }
+
+        String token = adminSession.create(user.getUsername(), user.getUsername());
         Map<String, Object> data = new HashMap<>();
         data.put("token", token);
-        data.put("username", admin.getUsername());
-        data.put("nickname", admin.getNickname());
+        data.put("username", user.getUsername());
+        data.put("nickname", user.getUsername());
         return Result.ok("执掌令已验证，欢迎回来", data);
     }
 

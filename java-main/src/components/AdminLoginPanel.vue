@@ -6,7 +6,7 @@
 
     <div class="badge">
       <svg viewBox="0 0 24 24"><path d="M12 2 4 6v6c0 5 3.5 8 8 10 4.5-2 8-5 8-10V6Z"/><path d="m9 12 2 2 4-4"/></svg>
-      <span>此入口用于管理门户展示数据，与斗者账号互不相通</span>
+      <span>仅权限为管理员的斗者账号可登入，普通斗者账号会被拒绝</span>
     </div>
 
     <form class="admin-form" autocomplete="off" @submit.prevent="doLogin">
@@ -34,7 +34,7 @@
       </button>
     </form>
 
-    <div class="tip">首次启动后端会自动创建默认管理员：<b>admin / admin123</b><br />请执行 sql/admin.sql 建表，正式使用前记得改密码。</div>
+    <div class="tip">后台与斗者共用账号（t_user），仅 <b>permission = 0</b> 可进入<br />默认管理员：<b>admin / admin123</b>（后端启动时自动创建，请尽快改密码）</div>
     <div class="switch-line"><a class="link" @click="$emit('back')">← 返回门户</a></div>
   </div>
 </template>

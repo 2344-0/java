@@ -30,10 +30,17 @@ public class AdminSession {
      * 签发新会话
      */
     public String create(Admin admin) {
+        return create(admin.getUsername(), admin.getNickname());
+    }
+
+    /**
+     * 签发新会话（不依赖 Admin 实体，供 t_user 管理员直接使用）
+     */
+    public String create(String username, String nickname) {
         String token = UUID.randomUUID().toString().replace("-", "");
         sessions.put(token, new Session(
-                admin.getUsername(),
-                admin.getNickname(),
+                username,
+                nickname,
                 System.currentTimeMillis() + TTL_MILLIS));
         return token;
     }

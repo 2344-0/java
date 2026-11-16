@@ -14,7 +14,8 @@ USE doupo;
 CREATE TABLE IF NOT EXISTS t_user (
   id         BIGINT       NOT NULL AUTO_INCREMENT COMMENT '主键',
   username   VARCHAR(64)  NOT NULL                COMMENT '斗者账号（唯一）',
-  password   VARCHAR(100) NOT NULL                COMMENT '斗气秘钥（BCrypt 密文）',
+  password   VARCHAR(100) NOT NULL                COMMENT '斗气秘钥（明文保存，不做加密）',
+  permission TINYINT      NOT NULL DEFAULT 1      COMMENT '权限：1=普通斗者（默认），0=管理员',
   phone      VARCHAR(20)  DEFAULT NULL            COMMENT '绑定手机号（唯一）',
   created_at DATETIME     DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
   updated_at DATETIME     DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',

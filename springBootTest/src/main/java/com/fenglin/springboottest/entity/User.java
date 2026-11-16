@@ -19,8 +19,13 @@ public class User {
     /** 斗者账号（唯一） */
     private String username;
 
-    /** 斗气秘钥（数据库存 BCrypt 密文，不存明文） */
+    /** 斗气秘钥（按需求以明文保存，不做加密） */
     private String password;
+
+    /**
+     * 权限：0 = 管理员（可进入后台管理系统），1 = 普通斗者（默认权限）
+     */
+    private Integer permission;
 
     /** 绑定手机号（唯一） */
     private String phone;
@@ -53,6 +58,14 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public Integer getPermission() {
+        return permission;
+    }
+
+    public void setPermission(Integer permission) {
+        this.permission = permission;
     }
 
     public String getPhone() {

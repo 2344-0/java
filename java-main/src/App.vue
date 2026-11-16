@@ -32,7 +32,13 @@
   </div>
 
   <!-- 前台首页：登录成功后进入 -->
-  <HomePanel v-else :username="currentUser" @logout="onLogout" @goto-admin="gotoAdmin" />
+  <HomePanel
+    v-else
+    :username="currentUser"
+    :can-admin="currentPermission === 0"
+    @logout="onLogout"
+    @goto-admin="gotoAdmin"
+  />
 
   <ThemeSwitcher v-if="view !== 'admin'" />
   <ToastHost />
@@ -56,17 +62,21 @@ import { showToast } from './composables/useToast'
 // 视图：login / register / home 为前台，admin-login / admin 为后台
 const view = ref('login')
 const currentUser = ref('')
+// 当前登录斗者的权限：0 = 管理员，1 = 普通斗者（默认）
+const currentPermission = ref(1)
 const adminUser = ref(null)
 // 记录进入后台前所在的前台视图，返回门户时还原
 const returnView = ref('login')
 
 function onLoginSuccess (payload) {
   currentUser.value = (payload && payload.username) || ''
+  currentPermission.value = payload && payload.permission != null ? payload.permission : 1
   view.value = 'home'
 }
 
 function onLogout () {
   currentUser.value = ''
+  currentPermission.value = 1
   view.value = 'login'
   showToast('已退出斗气，期待再度相逢', '✦')
 }

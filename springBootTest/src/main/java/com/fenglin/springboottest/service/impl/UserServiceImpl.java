@@ -7,7 +7,6 @@ import com.fenglin.springboottest.dto.RegisterDTO;
 import com.fenglin.springboottest.entity.User;
 import com.fenglin.springboottest.mapper.UserMapper;
 import com.fenglin.springboottest.service.UserService;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -16,14 +15,17 @@ import java.util.UUID;
 
 /**
  * 注册 / 登录业务实现
+ *
+ * 权限约定：
+ *   permission = 1  普通斗者（注册时默认）
+ *   permission = 0  管理员（可进入后台管理系统）
+ * 密码按需求以明文保存到数据库，不做加密。
  */
 @Service
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
-    /**
-     * BCrypt 加密器（线程安全，可直接作为成员变量复用）
-     */
-    private final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    /** 默认权限：普通斗者 */
+    private static final int PERMISSION_USER = 1;
 
     @Override
     public Result<?> register(RegisterDTO dto) {
@@ -53,10 +55,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             }
         }
 
-        // 4. 落库：密码以 BCrypt 密文保存
+        // 4. 落库：密码明文保存，权限固定为默认权限（1）
         User user = new User();
         user.setUsername(username);
-        user.setPassword(passwordEncoder.encode(password));
+        user.setPassword(password);
+        user.setPermission(PERMISSION_USER);
         user.setPhone(phone);
 
         boolean saved = this.save(user);
@@ -80,16 +83,22 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             return Result.fail("斗者不存在，请先立下契约");
         }
 
-        // 明文密码与数据库密文比对
-        if (!passwordEncoder.matches(password, user.getPassword())) {
+        // 明文密码直接比对
+        if (!password.equals(user.getPassword())) {
             return Result.fail("斗气秘钥错误");
         }
 
-        // 登录成功，返回用户名与一个简单 token（演示用，生产请改用 JWT）
+        // 登录成功，返回用户名、权限与一个简单 token（演示用，生产请改用 JWT）
         Map<String, Object> data = new HashMap<>();
         data.put("username", user.getUsername());
+        data.put("permission", normalizePermission(user.getPermission()));
         data.put("token", UUID.randomUUID().toString().replace("-", ""));
 
         return Result.ok("登录成功，异火认主，斗气涌入经脉……", data);
+    }
+
+    /** 空值兜底：历史数据没有权限时按普通斗者处理 */
+    private int normalizePermission(Integer permission) {
+        return permission == null ? PERMISSION_USER : permission;
     }
 }

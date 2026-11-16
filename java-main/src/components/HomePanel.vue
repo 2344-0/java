@@ -21,7 +21,14 @@
             <span class="av">{{ initial }}</span>
             <span><b>{{ username || '萧炎' }}</b> <span class="lv">斗之气三段</span></span>
           </div>
-          <button class="admin-entry" type="button" title="进入后台管理系统" @click="$emit('goto-admin')">
+          <!-- 后台入口：仅管理员（permission = 0）可见 -->
+          <button
+            v-if="canAdmin"
+            class="admin-entry"
+            type="button"
+            title="进入后台管理系统"
+            @click="$emit('goto-admin')"
+          >
             <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><path d="M3 9h18M9 9v11"/></svg>
             后台管理
           </button>
@@ -177,7 +184,9 @@ const API_HOME = API_BASE + '/api/home'
 const API_SEARCH = API_BASE + '/api/home/search'
 
 const props = defineProps({
-  username: { type: String, default: '' }
+  username: { type: String, default: '' },
+  // 是否为管理员（permission = 0），决定是否显示「后台管理」入口
+  canAdmin: { type: Boolean, default: false }
 })
 const emit = defineEmits(['logout', 'goto-admin'])
 

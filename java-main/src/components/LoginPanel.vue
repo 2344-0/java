@@ -269,8 +269,12 @@ function doLogin (pane) {
         if (res && res.code === 0) {
           loginDone.value = true
           toast(res.msg || '登录成功，异火认主，斗气涌入经脉……', '✦')
-          // 通知 App 切换到首页门户（携带后端返回的账号名）
-          emit('login-success', { username: (res.data && res.data.username) || form.user.trim() })
+          // 通知 App 切换到首页门户（携带后端返回的账号名与权限）
+          emit('login-success', {
+            username: (res.data && res.data.username) || form.user.trim(),
+            // 0 = 管理员，1 = 普通斗者
+            permission: res.data && res.data.permission != null ? res.data.permission : 1
+          })
           setTimeout(() => { loginDone.value = false }, 2200)
         } else {
           toast(res && res.msg ? res.msg : '登录失败，请稍后再试', '✕')
@@ -286,7 +290,8 @@ function doLogin (pane) {
     setTimeout(() => {
       smsLoading.value = false; smsDone.value = true
       toast('验证通过，欢迎回来，斗者。', '✦')
-      emit('login-success', { username: form.phone.trim() })
+      // 手机验证登录视为普通斗者（权限 1），无后台入口
+      emit('login-success', { username: form.phone.trim(), permission: 1 })
       setTimeout(() => { smsDone.value = false }, 2200)
     }, 1500)
   }
