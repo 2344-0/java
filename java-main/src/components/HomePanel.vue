@@ -164,6 +164,7 @@
       <PillPanel v-else-if="page === 'pill'" />
       <DouqiRankPanel v-else-if="page === 'douqi'" />
       <SectPanel v-else-if="page === 'sect'" />
+      <DicePanel v-else-if="page === 'dice'" :username="username" />
     </div>
   </div>
 </template>
@@ -177,6 +178,7 @@ import GongfaRankPanel from './GongfaRankPanel.vue'
 import PillPanel from './PillPanel.vue'
 import DouqiRankPanel from './DouqiRankPanel.vue'
 import SectPanel from './SectPanel.vue'
+import DicePanel from './DicePanel.vue'
 import { API_BASE } from '../api-config'
 
 // 后端首页接口地址（地址来自 ../api-config.js，端口 8081）
@@ -193,9 +195,9 @@ const emit = defineEmits(['logout', 'goto-admin'])
 const initial = computed(() => (props.username ? props.username.charAt(0) : '斗'))
 
 /* ===== 导航 ===== */
-const navLinks = ['首页', '异火榜', '功法阁', '丹药坊', '斗气榜', '宗门']
-// 每个导航项对应的子页面：首页 / 异火榜 / 功法阁 / 丹药坊 为真实页面，斗气榜/宗门暂未展开
-const navPages = ['home', 'fire', 'gongfa', 'pill', 'douqi', 'sect']
+const navLinks = ['首页', '异火榜', '功法阁', '丹药坊', '斗气榜', '宗门', '掷骰坊']
+// 每个导航项对应的子页面：首页 / 异火榜 / 功法阁 / 丹药坊 / 掷骰坊为真实页面，斗气榜/宗门暂未展开
+const navPages = ['home', 'fire', 'gongfa', 'pill', 'douqi', 'sect', 'dice']
 const activeNav = ref(0)
 const page = ref('home')
 
