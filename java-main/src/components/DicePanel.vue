@@ -140,6 +140,7 @@ import { showToast } from '../composables/useToast'
 import {
   sfxEnabled, toggleSfx, playRoll, playWin, playLose, playDraw, playClaim, playClick
 } from '../composables/useSfx'
+import { qi as sharedQi, realmBonus, persist as persistShared } from '../composables/useCultivation'
 
 const props = defineProps({
   username: { type: String, default: '' }
@@ -204,7 +205,8 @@ function loadSave () {
 }
 
 const saved = loadSave()
-const qi = ref(saved.qi)
+// 斗气改为共享状态：与修炼阁打坐互通（原本地存档斗气已在 useCultivation 中迁移）
+const qi = sharedQi
 const bestStreak = ref(saved.bestStreak)
 const wins = ref(saved.wins)
 const games = ref(saved.games)
@@ -229,8 +231,8 @@ const stake = computed(() => {
   return bet.value === 'all' ? qi.value : Math.min(Number(bet.value), qi.value)
 })
 
-// 连胜倍率：连胜越高，彩头越厚
-const multiplier = computed(() => streakMultiplier(streak.value))
+// 彩头倍率 = 连胜倍率 × 境界加成（修为越高，赌运越盛）
+const multiplier = computed(() => streakMultiplier(streak.value) * realmBonus.value)
 function streakMultiplier (s) {
   if (s >= 4) return 3
   if (s === 3) return 2
@@ -258,9 +260,9 @@ function claimDaily () {
 }
 
 function persist () {
+  persistShared()
   try {
     localStorage.setItem(SAVE_KEY, JSON.stringify({
-      qi: qi.value,
       bestStreak: bestStreak.value,
       wins: wins.value,
       games: games.value,

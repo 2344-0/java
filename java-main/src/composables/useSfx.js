@@ -101,3 +101,14 @@ export function playClick () {
   const c = ready(); if (!c) return
   tone(c, 620, c.currentTime, 0.05, 'triangle', 0.05)
 }
+
+// 突破成功：上行音阶 + 结尾轰鸣，气势十足
+export function playBreakthrough () {
+  const c = ready(); if (!c) return
+  const t = c.currentTime
+  ;[392, 523.25, 659.25, 783.99, 1046.5, 1318.5].forEach((f, i) =>
+    tone(c, f, t + i * 0.09, 0.3, 'triangle', 0.1)
+  )
+  tone(c, 130.81, t + 0.5, 0.7, 'sawtooth', 0.08)
+  tone(c, 261.63, t + 0.55, 0.6, 'sine', 0.07)
+}
