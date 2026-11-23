@@ -7,7 +7,7 @@
 // 存档 key：doupo_sect_guild_v1（按用户名隔离，跨天自动重置任务）
 // ============================================================
 import { ref, computed } from 'vue'
-import { qi, realmBonus, persist as persistCultivation } from './useCultivation'
+import { qi, realmBonus, persist as persistCultivation } from './useCultivation.js'
 
 const STORE_KEY = 'doupo_sect_guild_v1'
 
