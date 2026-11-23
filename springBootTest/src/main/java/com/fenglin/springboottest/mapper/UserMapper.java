@@ -5,6 +5,9 @@ import com.fenglin.springboottest.entity.User;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
 
+import java.util.List;
+import java.util.Map;
+
 /**
  * 斗者 Mapper，继承 MyBatis-Plus 的 BaseMapper 即拥有 CRUD 能力
  */
@@ -22,4 +25,12 @@ public interface UserMapper extends BaseMapper<User> {
      */
     @Select("SELECT * FROM t_user WHERE phone = #{phone} LIMIT 1")
     User selectByPhone(String phone);
+
+    /**
+     * 统计各宗门的成员数（未加入宗门的不计入）
+     * @return 每项包含 sect（宗门名）与 cnt（成员数）
+     */
+    @Select("SELECT sect, COUNT(*) AS cnt FROM t_user " +
+            "WHERE sect IS NOT NULL AND sect <> '' GROUP BY sect")
+    List<Map<String, Object>> countBySect();
 }

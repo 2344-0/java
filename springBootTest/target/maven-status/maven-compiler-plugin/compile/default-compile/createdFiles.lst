@@ -7,6 +7,7 @@ com\fenglin\springboottest\dto\AdminLoginDTO.class
 com\fenglin\springboottest\common\Result.class
 com\fenglin\springboottest\service\AdminSession.class
 com\fenglin\springboottest\service\AdminSession$Session.class
+com\fenglin\springboottest\api\ApiSectController.class
 com\fenglin\springboottest\entity\User.class
 com\fenglin\springboottest\service\impl\HomeServiceImpl.class
 com\fenglin\springboottest\dto\HomeDataVO.class

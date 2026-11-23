@@ -30,6 +30,9 @@ public class User {
     /** 绑定手机号（唯一） */
     private String phone;
 
+    /** 所属宗门（对应 t_sect.name），NULL 表示尚未加入任何宗门 */
+    private String sect;
+
     /** 创建时间 */
     private LocalDateTime createdAt;
 
@@ -74,6 +77,14 @@ public class User {
 
     public void setPhone(String phone) {
         this.phone = phone;
+    }
+
+    public String getSect() {
+        return sect;
+    }
+
+    public void setSect(String sect) {
+        this.sect = sect;
     }
 
     public LocalDateTime getCreatedAt() {

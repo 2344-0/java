@@ -2,6 +2,7 @@ D:\workSpace\java\springBootTest\src\main\java\com\fenglin\springboottest\api\Ad
 D:\workSpace\java\springBootTest\src\main\java\com\fenglin\springboottest\api\AdminDataController.java
 D:\workSpace\java\springBootTest\src\main\java\com\fenglin\springboottest\api\ApiHomeController.java
 D:\workSpace\java\springBootTest\src\main\java\com\fenglin\springboottest\api\ApiRankController.java
+D:\workSpace\java\springBootTest\src\main\java\com\fenglin\springboottest\api\ApiSectController.java
 D:\workSpace\java\springBootTest\src\main\java\com\fenglin\springboottest\api\ApiUserController.java
 D:\workSpace\java\springBootTest\src\main\java\com\fenglin\springboottest\common\Result.java
 D:\workSpace\java\springBootTest\src\main\java\com\fenglin\springboottest\config\AdminAuthInterceptor.java

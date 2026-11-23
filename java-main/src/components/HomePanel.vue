@@ -19,7 +19,7 @@
         <div class="nav-right">
           <div class="nav-user" title="斗者信息" @click="showUserInfo">
             <span class="av">{{ initial }}</span>
-            <span><b>{{ username || '萧炎' }}</b> <span class="lv">斗之气三段</span></span>
+            <span><b>{{ username || '萧炎' }}</b> <span class="lv">{{ joinedSect || '无宗无派' }}</span></span>
           </div>
           <!-- 后台入口：仅管理员（permission = 0）可见 -->
           <button
@@ -163,7 +163,7 @@
       <GongfaRankPanel v-else-if="page === 'gongfa'" />
       <PillPanel v-else-if="page === 'pill'" />
       <DouqiRankPanel v-else-if="page === 'douqi'" />
-      <SectPanel v-else-if="page === 'sect'" />
+      <SectPanel v-else-if="page === 'sect'" :username="username" />
       <CultivationPanel v-else-if="page === 'cultivate'" :username="username" />
       <DicePanel v-else-if="page === 'dice'" :username="username" />
     </div>
@@ -182,6 +182,7 @@ import SectPanel from './SectPanel.vue'
 import DicePanel from './DicePanel.vue'
 import CultivationPanel from './CultivationPanel.vue'
 import { API_BASE } from '../api-config'
+import { joinedSect, loadMySect } from '../composables/useSect'
 
 // 后端首页接口地址（地址来自 ../api-config.js，端口 8081）
 const API_HOME = API_BASE + '/api/home'
@@ -198,7 +199,7 @@ const initial = computed(() => (props.username ? props.username.charAt(0) : '斗
 
 /* ===== 导航 ===== */
 const navLinks = ['首页', '异火榜', '功法阁', '丹药坊', '斗气榜', '宗门', '修炼阁', '掷骰坊']
-// 每个导航项对应的子页面：首页 / 异火榜 / 功法阁 / 丹药坊 / 修炼阁 / 掷骰坊为真实页面，斗气榜/宗门暂未展开
+// 每个导航项对应的子页面：全部为已实现的真实页面
 const navPages = ['home', 'fire', 'gongfa', 'pill', 'douqi', 'sect', 'cultivate', 'dice']
 const activeNav = ref(0)
 const page = ref('home')
@@ -222,7 +223,7 @@ function goHome () {
 }
 function goTop () { window.scrollTo({ top: 0, behavior: 'smooth' }) }
 function showUserInfo () {
-  toast('斗者 · ' + (props.username || '萧炎') + '　|　斗之气三段')
+  toast('斗者 · ' + (props.username || '萧炎') + '　|　' + (joinedSect.value ? '所属「' + joinedSect.value + '」' : '尚无宗门，可前往宗门页择一而归'))
 }
 
 /* ===== 主题 ===== */
@@ -306,7 +307,10 @@ function loadHome () {
     })
 }
 
-onMounted(loadHome)
+onMounted(() => {
+  loadHome()
+  loadMySect(props.username)
+})
 
 // 搜索：走后端 /api/home/search，同时命中异火 / 功法 / 斗者
 function doSearch (kw) {
