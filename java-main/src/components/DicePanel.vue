@@ -1,30 +1,13 @@
 <template>
   <div class="rank-page dice-page">
     <section class="section">
-      <!-- 胜者大型烟花秀：覆盖整个界面 -->
-      <div v-if="fireworks.length" :key="verdictSeq" class="fx-layer" aria-hidden="true">
-        <div
-          v-for="shell in fireworks"
-          :key="shell.id"
-          class="fw-shell"
-          :style="{ left: shell.x + '%', top: shell.y + '%', animationDelay: shell.delay + 's' }"
-        >
-          <span class="fw-core"></span>
-          <span
-            v-for="(pt, i) in shell.parts"
-            :key="i"
-            class="fw-part"
-            :style="{
-              '--a': pt.angle + 'deg',
-              '--d': pt.dist + 'px',
-              '--sz': pt.size + 'px',
-              '--c': pt.color,
-              '--dur': pt.dur + 's',
-              animationDelay: pt.delay + 's'
-            }"
-          ></span>
+      <!-- 胜者烟花大图：与小丑对称展示 -->
+      <transition name="clown-pop">
+        <div v-if="showFireworks" :key="'fw' + verdictSeq" class="clown-layer fireworks-layer" aria-hidden="true">
+          <img src="/images/fireworks.png" alt="胜者烟花" />
+          <span class="clown-word fw-word">胜</span>
         </div>
-      </div>
+      </transition>
       <!-- 败者小丑 -->
       <transition name="clown-pop">
         <div v-if="showClown" :key="'clown' + verdictSeq" class="clown-layer" aria-hidden="true">
@@ -258,44 +241,19 @@ const verdictSeq = ref(0) // 每次结算自增，用于重放赛果/光刃动�
 const winner = ref('') // 本局胜方：'player' | 'dealer' | ''
 const dealer = ref(dealers[Math.floor(Math.random() * dealers.length)])
 
-// ===== 大型烟花秀（玩家胜） =====
-const fireworks = ref([]) // 每束烟花的粒子列表
+// ===== 结算特效：胜者烟花图 / 败者小丑图 =====
+const showFireworks = ref(false) // 胜者烟花大图
 const showClown = ref(false) // 败者小丑
 let fxTimer = null
-const FW_COLORS = ['#ffd98a', '#ff8a2b', '#a97bff', '#4de3ff', '#ff6b9d', '#fff2c4']
-
-// 生成 N 束烟花，每束 M 个粒子，粒子带随机角度/距离/颜色/延时
-function buildFireworks () {
-  const shells = []
-  const shellCount = 5
-  const partsPer = 26
-  for (let s = 0; s < shellCount; s++) {
-    const bx = 12 + Math.random() * 76 // 爆点横坐标 %
-    const by = 18 + Math.random() * 44 // 爆点纵坐标 %
-    const hue = FW_COLORS[s % FW_COLORS.length]
-    const parts = []
-    for (let i = 0; i < partsPer; i++) {
-      parts.push({
-        angle: (360 / partsPer) * i + (Math.random() * 14 - 7),
-        dist: 46 + Math.random() * 54, // 半径 %（相对烟花容器）
-        size: 4 + Math.random() * 5,
-        delay: Math.random() * 0.25,
-        color: Math.random() > 0.35 ? hue : FW_COLORS[Math.floor(Math.random() * FW_COLORS.length)],
-        dur: 1.1 + Math.random() * 0.7
-      })
-    }
-    shells.push({ id: s, x: bx, y: by, delay: s * 0.16, parts })
-  }
-  return shells
-}
 
 function launchCelebration (isWin) {
   clearTimeout(fxTimer)
   showClown.value = false
-  fireworks.value = []
+  showFireworks.value = false
   if (isWin) {
-    fireworks.value = buildFireworks()
-    fxTimer = setTimeout(() => { fireworks.value = [] }, 2600)
+    // 玩家胜：全屏烟花大图，和小丑对称展示
+    showFireworks.value = true
+    fxTimer = setTimeout(() => { showFireworks.value = false }, 3200)
   } else {
     // 玩家败：展示小丑，持续 3.2s
     showClown.value = true
@@ -366,7 +324,7 @@ function roll () {
   verdictText.value = ''
   winner.value = ''
   clearTimeout(fxTimer)
-  fireworks.value = []
+  showFireworks.value = false
   showClown.value = false
   dealer.value = dealers[Math.floor(Math.random() * dealers.length)]
 
@@ -423,7 +381,7 @@ function settle (p, d) {
     verdictText.value = '和 · 退还押注'
     playDraw()
     clearTimeout(fxTimer)
-    fireworks.value = []
+    showFireworks.value = false
     showClown.value = false
     showToast('平局，斗气如数退还', '✦')
   }
@@ -442,7 +400,7 @@ function refill () {
   winner.value = ''
   verdictText.value = ''
   clearTimeout(fxTimer)
-  fireworks.value = []
+  showFireworks.value = false
   showClown.value = false
   playClaim()
   persist()
@@ -461,7 +419,7 @@ function resetAll () {
   winner.value = ''
   verdictText.value = ''
   clearTimeout(fxTimer)
-  fireworks.value = []
+  showFireworks.value = false
   showClown.value = false
   persist()
   showToast('战绩已重置', '✦')
@@ -473,26 +431,16 @@ function resetAll () {
 .section{position:relative;}
 .lead{font-family:var(--serif);font-size:14px;letter-spacing:.12em;color:#b9b0cc;margin:-6px 0 22px;text-shadow:0 2px 14px rgba(0,0,0,.7);}
 
-/* ===== 胜者大型烟花秀 ===== */
-.fx-layer{position:absolute;inset:-40px -20px;z-index:20;pointer-events:none;overflow:hidden;}
-.fw-shell{position:absolute;width:0;height:0;animation:shell-appear .1s linear both;}
-@keyframes shell-appear{from{opacity:0}to{opacity:1}}
-.fw-core{position:absolute;left:-6px;top:-6px;width:12px;height:12px;border-radius:50%;
-  background:#fff;box-shadow:0 0 22px 9px #fff, 0 0 60px 24px var(--rune);
-  animation:fw-core .55s ease-out both;}
-@keyframes fw-core{0%{opacity:0;transform:scale(.2)}25%{opacity:1;transform:scale(1.6)}100%{opacity:0;transform:scale(.3)}}
-.fw-part{position:absolute;left:0;top:0;width:var(--sz);height:var(--sz);border-radius:50%;
-  background:var(--c);box-shadow:0 0 10px 2px var(--c);
-  animation:fw-fly var(--dur) cubic-bezier(.15,.55,.35,1) both;}
-@keyframes fw-fly{
-  0%{opacity:0;transform:rotate(var(--a)) translateX(0) scale(.4)}
-  12%{opacity:1}
-  70%{opacity:1;transform:rotate(var(--a)) translateX(var(--d)) scale(1)}
-  100%{opacity:0;transform:rotate(var(--a)) translateX(calc(var(--d) * 1.12)) scale(.2)}
-}
-/* 二次绽放的流星拖尾 */
-.fw-part::after{content:"";position:absolute;left:0;top:50%;width:22px;height:2px;transform:translateY(-50%);
-  background:linear-gradient(90deg, var(--c), transparent);opacity:.6;border-radius:99px;}
+/* ===== 胜者烟花大图：与小丑对称 ===== */
+.fireworks-layer img{width:min(560px,92vw);filter:drop-shadow(0 0 40px rgba(255,190,80,.55)) saturate(1.15);
+  animation:fw-bloom 3.2s ease-out both;}
+@keyframes fw-bloom{0%{opacity:0;transform:translate(-50%,-50%) rotate(-6deg) scale(.55)}
+  22%{opacity:1;transform:translate(-50%,-50%) rotate(0) scale(1.06)}
+  40%{transform:translate(-50%,-50%) rotate(2deg) scale(1)}
+  85%{opacity:1}
+  100%{opacity:0;transform:translate(-50%,-50%) scale(1.05)}}
+.fw-word{color:var(--rune);text-shadow:0 0 34px var(--glow), 0 0 14px var(--rune), 0 6px 20px rgba(0,0,0,.9);
+  animation:crown-drop .55s cubic-bezier(.2,1.6,.4,1) both, crown-float 3s ease-in-out .55s infinite;}
 
 /* ===== 败者小丑 ===== */
 .clown-layer{position:absolute;inset:-30px -20px;z-index:22;pointer-events:none;overflow:hidden;}

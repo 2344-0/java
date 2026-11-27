@@ -23,3 +23,14 @@ CREATE TABLE IF NOT EXISTS t_user (
   UNIQUE KEY uk_username (username),
   UNIQUE KEY uk_phone (phone)
 ) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = '斗者表';
+
+-- 斗者形象配置：塑颜阁捏脸数据（按账号唯一，存 JSON）
+CREATE TABLE IF NOT EXISTS t_user_avatar (
+  id         BIGINT      NOT NULL AUTO_INCREMENT COMMENT '主键',
+  username   VARCHAR(64) NOT NULL                COMMENT '斗者账号（唯一）',
+  config     TEXT        NOT NULL                COMMENT '形象配置 JSON',
+  created_at DATETIME    DEFAULT CURRENT_TIMESTAMP COMMENT '创建时间',
+  updated_at DATETIME    DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP COMMENT '更新时间',
+  PRIMARY KEY (id),
+  UNIQUE KEY uk_avatar_username (username)
+) ENGINE = InnoDB DEFAULT CHARSET = utf8mb4 COMMENT = '斗者形象配置表';

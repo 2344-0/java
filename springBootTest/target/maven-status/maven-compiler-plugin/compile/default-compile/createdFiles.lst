@@ -2,6 +2,7 @@ com\fenglin\springboottest\config\AdminInitializer.class
 com\fenglin\springboottest\api\AdminController.class
 com\fenglin\springboottest\config\AdminAuthInterceptor.class
 com\fenglin\springboottest\mapper\FireMapper.class
+com\fenglin\springboottest\api\ApiAvatarController.class
 com\fenglin\springboottest\config\MybatisPlusConfig.class
 com\fenglin\springboottest\dto\AdminLoginDTO.class
 com\fenglin\springboottest\common\Result.class
@@ -21,10 +22,12 @@ com\fenglin\springboottest\api\ApiUserController.class
 com\fenglin\springboottest\config\CorsConfig.class
 com\fenglin\springboottest\entity\Douqi.class
 com\fenglin\springboottest\mapper\PillMapper.class
+com\fenglin\springboottest\entity\UserAvatar.class
 com\fenglin\springboottest\mapper\AdminMapper.class
 com\fenglin\springboottest\api\ApiRankController.class
 com\fenglin\springboottest\entity\Fire.class
 com\fenglin\springboottest\api\AdminDataController$AdminResource.class
+com\fenglin\springboottest\mapper\UserAvatarMapper.class
 com\fenglin\springboottest\entity\Admin.class
 com\fenglin\springboottest\service\HomeService.class
 com\fenglin\springboottest\service\impl\UserServiceImpl.class

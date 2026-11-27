@@ -1,5 +1,6 @@
 D:\workSpace\java\springBootTest\src\main\java\com\fenglin\springboottest\api\AdminController.java
 D:\workSpace\java\springBootTest\src\main\java\com\fenglin\springboottest\api\AdminDataController.java
+D:\workSpace\java\springBootTest\src\main\java\com\fenglin\springboottest\api\ApiAvatarController.java
 D:\workSpace\java\springBootTest\src\main\java\com\fenglin\springboottest\api\ApiHomeController.java
 D:\workSpace\java\springBootTest\src\main\java\com\fenglin\springboottest\api\ApiRankController.java
 D:\workSpace\java\springBootTest\src\main\java\com\fenglin\springboottest\api\ApiSectController.java
@@ -25,6 +26,7 @@ D:\workSpace\java\springBootTest\src\main\java\com\fenglin\springboottest\entity
 D:\workSpace\java\springBootTest\src\main\java\com\fenglin\springboottest\entity\Pill.java
 D:\workSpace\java\springBootTest\src\main\java\com\fenglin\springboottest\entity\Sect.java
 D:\workSpace\java\springBootTest\src\main\java\com\fenglin\springboottest\entity\User.java
+D:\workSpace\java\springBootTest\src\main\java\com\fenglin\springboottest\entity\UserAvatar.java
 D:\workSpace\java\springBootTest\src\main\java\com\fenglin\springboottest\mapper\AdminMapper.java
 D:\workSpace\java\springBootTest\src\main\java\com\fenglin\springboottest\mapper\DouqiMapper.java
 D:\workSpace\java\springBootTest\src\main\java\com\fenglin\springboottest\mapper\FeedPostMapper.java
@@ -33,6 +35,7 @@ D:\workSpace\java\springBootTest\src\main\java\com\fenglin\springboottest\mapper
 D:\workSpace\java\springBootTest\src\main\java\com\fenglin\springboottest\mapper\HotWordMapper.java
 D:\workSpace\java\springBootTest\src\main\java\com\fenglin\springboottest\mapper\PillMapper.java
 D:\workSpace\java\springBootTest\src\main\java\com\fenglin\springboottest\mapper\SectMapper.java
+D:\workSpace\java\springBootTest\src\main\java\com\fenglin\springboottest\mapper\UserAvatarMapper.java
 D:\workSpace\java\springBootTest\src\main\java\com\fenglin\springboottest\mapper\UserMapper.java
 D:\workSpace\java\springBootTest\src\main\java\com\fenglin\springboottest\service\AdminSession.java
 D:\workSpace\java\springBootTest\src\main\java\com\fenglin\springboottest\service\HomeService.java

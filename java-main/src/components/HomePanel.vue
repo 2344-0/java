@@ -18,7 +18,7 @@
         </nav>
         <div class="nav-right">
           <div class="nav-user" title="斗者信息" @click="showUserInfo">
-            <span class="av">{{ initial }}</span>
+            <span class="av av-figure"><AvatarFigure :config="avatar" instance-id="nav" /></span>
             <span><b>{{ username || '萧炎' }}</b> <span class="lv">{{ joinedSect || '无宗无派' }}</span></span>
           </div>
           <!-- 后台入口：仅管理员（permission = 0）可见 -->
@@ -166,6 +166,7 @@
       <SectPanel v-else-if="page === 'sect'" :username="username" />
       <CultivationPanel v-else-if="page === 'cultivate'" :username="username" />
       <DicePanel v-else-if="page === 'dice'" :username="username" />
+      <AvatarForgePanel v-else-if="page === 'forge'" />
     </div>
   </div>
 </template>
@@ -181,6 +182,9 @@ import DouqiRankPanel from './DouqiRankPanel.vue'
 import SectPanel from './SectPanel.vue'
 import DicePanel from './DicePanel.vue'
 import CultivationPanel from './CultivationPanel.vue'
+import AvatarForgePanel from './AvatarForgePanel.vue'
+import AvatarFigure from './AvatarFigure.vue'
+import { avatar } from '../composables/useAvatar'
 import { API_BASE } from '../api-config'
 import { joinedSect, loadMySect } from '../composables/useSect'
 
@@ -198,9 +202,9 @@ const emit = defineEmits(['logout', 'goto-admin'])
 const initial = computed(() => (props.username ? props.username.charAt(0) : '斗'))
 
 /* ===== 导航 ===== */
-const navLinks = ['首页', '异火榜', '功法阁', '丹药坊', '斗气榜', '宗门', '修炼阁', '掷骰坊']
+const navLinks = ['首页', '异火榜', '功法阁', '丹药坊', '斗气榜', '宗门', '修炼阁', '掷骰坊', '塑颜阁']
 // 每个导航项对应的子页面：全部为已实现的真实页面
-const navPages = ['home', 'fire', 'gongfa', 'pill', 'douqi', 'sect', 'cultivate', 'dice']
+const navPages = ['home', 'fire', 'gongfa', 'pill', 'douqi', 'sect', 'cultivate', 'dice', 'forge']
 const activeNav = ref(0)
 const page = ref('home')
 
@@ -376,6 +380,10 @@ function toast (m, ic) { showToast(m, ic) }
 </script>
 
 <style scoped>
+/* 顶部自定义形象缩略图：盖住原文字头像 */
+:deep(.nav-user .av-figure){overflow:hidden;background:linear-gradient(160deg, rgba(90,50,180,.5), rgba(10,8,18,.9));}
+:deep(.nav-user .av-figure .avatar-figure){width:150%;height:150%;transform:translate(-17%,-30%);filter:none;}
+
 /* 首页门户样式由 global.css 中 .home 命名空间类提供（全局）。
    这里仅处理滚动：登录/注册页 body 为 overflow:hidden，
    首页门户内容较多需要独立滚动。 */
