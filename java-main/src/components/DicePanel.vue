@@ -45,7 +45,7 @@
       <!-- 赌桌 -->
       <div class="arena">
         <!-- 庄家 -->
-        <div class="seat dealer">
+        <div class="seat dealer" :class="{ 'seat-winner': !rolling && settled && winner === 'dealer' }">
           <div class="seat-head">
             <span class="av">{{ dealer.charAt(0) }}</span>
             <div><b>{{ dealer }}</b><small>庄家</small></div>
@@ -55,8 +55,9 @@
               v-for="(v, i) in dealerDice"
               :key="'d' + i"
               class="die"
-              :class="{ rolling: rolling, 'die-win': !rolling && settled && dealerSum > playerSum }"
+              :class="{ rolling: rolling, 'die-win': !rolling && settled && winner === 'dealer' }"
             >
+              <span class="spark-ring" v-if="!rolling && settled && winner === 'dealer'"></span>
               <span v-for="p in 9" :key="p" class="pip" :class="{ on: pipMap[v].includes(p - 1) }"></span>
             </div>
           </div>
@@ -66,12 +67,14 @@
         <!-- 中间 VS / 赛果 -->
         <div class="mid">
           <div class="versus">斗</div>
-          <div v-if="settled" class="verdict" :class="verdictType">{{ verdictText }}</div>
+          <div v-if="settled" :key="verdictSeq" class="verdict" :class="verdictType">{{ verdictText }}</div>
           <div v-else class="verdict-hint">{{ rolling ? '骰影翻飞…' : '落注开局' }}</div>
+          <!-- 胜者光刃：从中央射向胜方 -->
+          <span v-if="!rolling && settled && winner" :key="'beam' + verdictSeq" class="win-beam" :class="winner"></span>
         </div>
 
         <!-- 玩家 -->
-        <div class="seat player">
+        <div class="seat player" :class="{ 'seat-winner': !rolling && settled && winner === 'player' }">
           <div class="seat-head">
             <span class="av">{{ player.charAt(0) }}</span>
             <div><b>{{ player }}</b><small>斗者</small></div>
@@ -81,12 +84,14 @@
               v-for="(v, i) in playerDice"
               :key="'p' + i"
               class="die"
-              :class="{ rolling: rolling, 'die-win': !rolling && settled && playerSum > dealerSum }"
+              :class="{ rolling: rolling, 'die-win': !rolling && settled && winner === 'player' }"
             >
+              <span class="spark-ring" v-if="!rolling && settled && winner === 'player'"></span>
               <span v-for="p in 9" :key="p" class="pip" :class="{ on: pipMap[v].includes(p - 1) }"></span>
             </div>
           </div>
           <div class="sum">共 <b>{{ playerSum }}</b> 点</div>
+          <span class="crown" v-if="!rolling && settled && winner === 'player'">冠</span>
         </div>
       </div>
 
@@ -218,6 +223,8 @@ const rolling = ref(false)
 const settled = ref(false)
 const verdictType = ref('')
 const verdictText = ref('')
+const verdictSeq = ref(0) // 每次结算自增，用于重放赛果/光刃动画
+const winner = ref('') // 本局胜方：'player' | 'dealer' | ''
 const dealer = ref(dealers[Math.floor(Math.random() * dealers.length)])
 
 const playerDice = ref([3, 5])
@@ -279,6 +286,7 @@ function roll () {
   rolling.value = true
   settled.value = false
   verdictText.value = ''
+  winner.value = ''
   dealer.value = dealers[Math.floor(Math.random() * dealers.length)]
 
   const finalP = [randDie(), randDie()]
@@ -300,6 +308,7 @@ function roll () {
 function settle (p, d) {
   rolling.value = false
   settled.value = true
+  verdictSeq.value++
   games.value++
 
   let gain = 0
@@ -311,6 +320,7 @@ function settle (p, d) {
     streak.value++
     if (streak.value > bestStreak.value) bestStreak.value = streak.value
     type = 'win'
+    winner.value = 'player'
     verdictType.value = 'win'
     verdictText.value = '胜 · 得 ' + gain + ' 斗气'
     playWin()
@@ -320,6 +330,7 @@ function settle (p, d) {
     qi.value = Math.max(0, qi.value - stake.value)
     streak.value = 0
     type = 'lose'
+    winner.value = 'dealer'
     verdictType.value = 'lose'
     verdictText.value = '负 · 失 ' + stake.value + ' 斗气'
     playLose()
@@ -342,6 +353,7 @@ function refill () {
   qi.value = 100
   streak.value = 0
   settled.value = false
+  winner.value = ''
   verdictText.value = ''
   playClaim()
   persist()
@@ -357,6 +369,7 @@ function resetAll () {
   streak.value = 0
   history.value = []
   settled.value = false
+  winner.value = ''
   verdictText.value = ''
   persist()
   showToast('战绩已重置', '✦')
@@ -419,11 +432,39 @@ function resetAll () {
 .die{width:64px;height:64px;border-radius:14px;padding:9px;display:grid;grid-template-columns:repeat(3,1fr);grid-template-rows:repeat(3,1fr);gap:3px;
   background:linear-gradient(145deg,#fbf4e6,#e4d8c2);border:1px solid #cbb994;
   box-shadow:0 10px 22px -10px rgba(0,0,0,.9), inset 0 2px 4px rgba(255,255,255,.8);transition:box-shadow .3s, border-color .3s;}
-.die.die-win{box-shadow:0 0 26px -4px var(--glow), 0 10px 22px -10px rgba(0,0,0,.9);border-color:var(--rune);}
+.die.die-win{position:relative;z-index:1;box-shadow:0 0 26px -4px var(--glow), 0 10px 22px -10px rgba(0,0,0,.9);border-color:var(--rune);
+  animation:die-triumph .6s cubic-bezier(.2,1.5,.4,1) both;}
+@keyframes die-triumph{0%{transform:scale(1)}35%{transform:scale(1.14) rotate(-4deg)}70%{transform:scale(.97) rotate(2deg)}100%{transform:scale(1) rotate(0)}}
+/* 胜者骰子：旋转符文光环 + 迸射星火 */
+.spark-ring{position:absolute;inset:-7px;border-radius:18px;pointer-events:none;z-index:2;
+  border:1.5px solid var(--rune);border-left-color:transparent;border-right-color:transparent;
+  box-shadow:0 0 14px -2px var(--glow), inset 0 0 10px -4px var(--glow);
+  animation:ring-spin 1.6s linear infinite, ring-flash .7s ease-out both;}
+@keyframes ring-spin{to{transform:rotate(360deg)}}
+@keyframes ring-flash{0%{opacity:0;transform:scale(.6)}40%{opacity:1}100%{opacity:1;transform:scale(1)}}
+.spark-ring::before,.spark-ring::after{content:"";position:absolute;top:50%;left:50%;width:5px;height:5px;margin:-2.5px;border-radius:50%;
+  background:var(--rune);box-shadow:0 0 8px 2px var(--glow);}
+.spark-ring::before{animation:spark-out 1s ease-out infinite .15s;}
+.spark-ring::after{animation:spark-out 1s ease-out infinite .65s;}
+@keyframes spark-out{0%{opacity:.9;transform:translate(0,0) scale(1)}100%{opacity:0;transform:translate(30px,-30px) scale(.2)}}
 .die.rolling{animation:tumble .25s linear infinite;}
 @keyframes tumble{0%{transform:rotate(-8deg) translateY(0)}50%{transform:rotate(8deg) translateY(-4px)}100%{transform:rotate(-8deg) translateY(0)}}
 .pip{border-radius:50%;background:transparent;}
 .pip.on{background:radial-gradient(circle at 35% 30%, #6d4bb8, #2a1656);box-shadow:inset 0 -1px 2px rgba(0,0,0,.5);}
+.die-win .pip.on{background:radial-gradient(circle at 35% 30%, #ffcf6b, #b4711d);box-shadow:inset 0 -1px 2px rgba(0,0,0,.4), 0 0 6px var(--rune);}
+/* 胜方座位：金色呼吸光晕 */
+.seat-winner{animation:seat-glow 1.8s ease-in-out infinite;}
+.seat-winner.player{border-color:var(--rune);}
+@keyframes seat-glow{0%,100%{box-shadow:0 0 22px -12px var(--glow), inset 0 0 24px -18px var(--glow)}
+  50%{box-shadow:0 0 44px -8px var(--glow), inset 0 0 34px -14px var(--glow)}}
+/* 玩家胜：冠冕标记 */
+.crown{position:absolute;top:-12px;right:-10px;width:34px;height:34px;border-radius:50%;display:grid;place-items:center;z-index:3;
+  font-family:var(--serif);font-size:17px;font-weight:700;color:#140a22;
+  background:linear-gradient(140deg,var(--rune),var(--fire-1));
+  box-shadow:0 0 20px -2px var(--glow), 0 6px 14px -6px #000;
+  animation:crown-drop .55s cubic-bezier(.2,1.6,.4,1) both, crown-float 3s ease-in-out .55s infinite;}
+@keyframes crown-drop{0%{opacity:0;transform:translateY(-26px) scale(.4) rotate(-40deg)}100%{opacity:1;transform:translateY(0) scale(1) rotate(0)}}
+@keyframes crown-float{0%,100%{transform:translateY(0)}50%{transform:translateY(-4px)}}
 .sum{margin-top:14px;font-family:var(--serif);font-size:12.5px;letter-spacing:.1em;color:var(--muted);}
 .sum b{font-size:19px;color:var(--rune);margin:0 2px;}
 
@@ -434,10 +475,26 @@ function resetAll () {
   animation:float 5s ease-in-out infinite;}
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
 .verdict{margin-top:6px;font-family:var(--serif);font-size:13px;font-weight:700;letter-spacing:.04em;line-height:1.6;}
-.verdict.win{color:var(--rune);text-shadow:0 0 14px var(--glow);}
-.verdict.lose{color:#ff8a94;}
-.verdict.draw{color:var(--cyan);}
+.verdict.win{color:var(--rune);text-shadow:0 0 14px var(--glow);
+  animation:verdict-stamp .5s cubic-bezier(.2,1.7,.4,1) both, verdict-shine 2.4s ease-in-out .5s infinite;}
+@keyframes verdict-stamp{0%{opacity:0;transform:scale(1.7) rotate(-6deg)}60%{opacity:1;transform:scale(.92) rotate(2deg)}100%{opacity:1;transform:scale(1) rotate(0)}}
+@keyframes verdict-shine{0%,100%{text-shadow:0 0 12px var(--glow)}50%{text-shadow:0 0 24px var(--rune), 0 0 8px var(--glow)}}
+.verdict.lose{color:#ff8a94;animation:verdict-stamp .45s cubic-bezier(.2,1.7,.4,1) both;}
+.verdict.draw{color:var(--cyan);animation:verdict-stamp .45s cubic-bezier(.2,1.7,.4,1) both;}
 .verdict-hint{margin-top:6px;font-family:var(--serif);font-size:12px;letter-spacing:.1em;color:var(--muted);}
+/* 胜者光刃：中央指向胜方的流星 */
+.mid{position:relative;}
+.win-beam{position:absolute;top:26px;width:96px;height:3px;border-radius:99px;pointer-events:none;z-index:4;
+  background:linear-gradient(90deg, transparent, var(--rune) 60%, #fff);
+  box-shadow:0 0 14px 2px var(--glow);}
+.win-beam.player{right:50%;transform-origin:right center;animation:beam-player .7s ease-out both;}
+.win-beam.dealer{left:50%;transform-origin:left center;animation:beam-dealer .7s ease-out both;}
+.win-beam::after{content:"";position:absolute;top:50%;width:9px;height:9px;margin-top:-4.5px;border-radius:50%;background:#fff;
+  box-shadow:0 0 14px 4px var(--rune);}
+.win-beam.player::after{right:-4px;}
+.win-beam.dealer::after{left:-4px;}
+@keyframes beam-player{0%{opacity:0;transform:scaleX(0)}30%{opacity:1}100%{opacity:0;transform:scaleX(1)}}
+@keyframes beam-dealer{0%{opacity:0;transform:scaleX(0)}30%{opacity:1}100%{opacity:0;transform:scaleX(1)}}
 
 /* 押注控制 */
 .table-control{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:14px;margin-top:20px;}
